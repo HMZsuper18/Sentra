@@ -205,12 +205,12 @@ class _SentraHomeState extends State<SentraHome> with TickerProviderStateMixin {
   BluetoothCharacteristic? _wifiNameChar;
   BluetoothCharacteristic? _wifiPassChar;
   bool _bleScanning = false;
-  List<BluetoothDevice> _foundDevices = [];
+  final List<BluetoothDevice> _foundDevices = [];
   String _debugInfo = '';
 
   // WiFi Info
-  String _wifiName = 'still_undefined';
-  String _wifiPassword = 'still_undefined';
+  final String _wifiName = 'still_undefined';
+  final String _wifiPassword = 'still_undefined';
   String boardName = 'ESP32';
 
   // Error codes
@@ -510,8 +510,9 @@ class _SentraHomeState extends State<SentraHome> with TickerProviderStateMixin {
     if (!mounted || !_speechAvailable || _speech.isListening) return;
     final now = DateTime.now();
     if (_speechRestarting ||
-        now.difference(_lastRestartTime).inMilliseconds < 2000)
+        now.difference(_lastRestartTime).inMilliseconds < 2000) {
       return;
+    }
     _speechRestarting = true;
     _speech
         .listen(
@@ -1633,41 +1634,45 @@ class _SentraHomeState extends State<SentraHome> with TickerProviderStateMixin {
       case 'قدام':
         _motorStates = ['forward', 'forward', 'forward', 'forward'];
         Future.delayed(const Duration(seconds: 2), () {
-          if (mounted)
+          if (mounted) {
             setState(() {
               _motorStates = ['idle', 'idle', 'idle', 'idle'];
               _lcdText = 'متوقف';
             });
+          }
         });
         break;
       case 'ورا':
         _motorStates = ['backward', 'backward', 'backward', 'backward'];
         Future.delayed(const Duration(seconds: 2), () {
-          if (mounted)
+          if (mounted) {
             setState(() {
               _motorStates = ['idle', 'idle', 'idle', 'idle'];
               _lcdText = 'متوقف';
             });
+          }
         });
         break;
       case 'يمين':
         _motorStates = ['forward', 'forward', 'backward', 'backward'];
         Future.delayed(const Duration(seconds: 1), () {
-          if (mounted)
+          if (mounted) {
             setState(() {
               _motorStates = ['idle', 'idle', 'idle', 'idle'];
               _lcdText = 'متوقف';
             });
+          }
         });
         break;
       case 'شمال':
         _motorStates = ['backward', 'backward', 'forward', 'forward'];
         Future.delayed(const Duration(seconds: 1), () {
-          if (mounted)
+          if (mounted) {
             setState(() {
               _motorStates = ['idle', 'idle', 'idle', 'idle'];
               _lcdText = 'متوقف';
             });
+          }
         });
         break;
       case 'وقف':
