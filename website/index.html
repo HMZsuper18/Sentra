@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sentra - التحكم الصوتي</title>
+  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --glass-bg: rgba(255,255,255,0.08);
+      --glass-border: rgba(255,255,255,0.25);
+      --glass-shine: rgba(255,255,255,0.5);
+      --glass-shadow: rgba(0,0,0,0.3);
+      --accent-1: #a78bfa;
+      --accent-2: #38bdf8;
+      --accent-3: #f472b6;
+    }
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{min-height:100vh;display:flex;justify-content:center;align-items:center;background:#0a0a1a;font-family:'Tajawal',sans-serif;overflow:hidden;position:relative}
+    .orb{position:fixed;border-radius:50%;filter:blur(80px);animation:float 8s ease-in-out infinite;pointer-events:none;z-index:0}
+    .orb-1{width:500px;height:500px;background:radial-gradient(circle,rgba(167,139,250,.5),transparent 70%);top:-150px;left:-150px}
+    .orb-2{width:400px;height:400px;background:radial-gradient(circle,rgba(56,189,248,.45),transparent 70%);bottom:-100px;right:-100px;animation-delay:-3s;animation-duration:10s}
+    .orb-3{width:300px;height:300px;background:radial-gradient(circle,rgba(244,114,182,.4),transparent 70%);bottom:100px;left:50px;animation-delay:-6s;animation-duration:12s}
+    .orb-4{width:250px;height:250px;background:radial-gradient(circle,rgba(52,211,153,.3),transparent 70%);top:100px;right:80px;animation-delay:-2s;animation-duration:9s}
+    @keyframes float{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(30px,-30px) scale(1.05)}66%{transform:translate(-20px,20px) scale(.97)}}
+    body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");opacity:.4;z-index:1;pointer-events:none}
+    .glass-card{position:relative;z-index:10;width:340px;padding:40px 36px 36px;border-radius:28px;background:var(--glass-bg);backdrop-filter:blur(40px) saturate(180%);-webkit-backdrop-filter:blur(40px) saturate(180%);border:1px solid var(--glass-border);box-shadow:0 8px 32px var(--glass-shadow),inset 0 1px 0 var(--glass-shine),inset 0 -1px 0 rgba(255,255,255,.05);animation:cardIn .8s cubic-bezier(.34,1.56,.64,1) forwards}
+    @keyframes cardIn{from{opacity:0;transform:translateY(40px) scale(.92)}to{opacity:1;transform:translateY(0) scale(1)}}
+    .glass-card::before{content:'';position:absolute;inset:0;border-radius:28px;background:linear-gradient(135deg,rgba(255,255,255,.15) 0%,rgba(255,255,255,.03) 40%,transparent 60%,rgba(255,255,255,.05) 100%);pointer-events:none}
+    .glass-card::after{content:'';position:absolute;inset:-1px;border-radius:29px;background:linear-gradient(135deg,rgba(167,139,250,.4),rgba(56,189,248,.2),rgba(244,114,182,.3));z-index:-1;filter:blur(1px)}
+    .mic-wrap{position:relative;display:flex;justify-content:center;align-items:center;margin-bottom:24px}
+    .ripple-ring{position:absolute;width:80px;height:80px;border-radius:50%;border:2px solid rgba(167,139,250,.5);animation:ripple 2s ease-out infinite}
+    .ripple-ring:nth-child(2){animation-delay:.6s;border-color:rgba(56,189,248,.4)}
+    .ripple-ring:nth-child(3){animation-delay:1.2s;border-color:rgba(244,114,182,.3)}
+    @keyframes ripple{0%{transform:scale(1);opacity:.8}100%{transform:scale(2.8);opacity:0}}
+    .mic-btn{position:relative;z-index:2;width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,rgba(167,139,250,.35),rgba(56,189,248,.25));border:1px solid rgba(255,255,255,.3);backdrop-filter:blur(10px);box-shadow:0 4px 20px rgba(167,139,250,.4),inset 0 1px 0 rgba(255,255,255,.4);display:flex;justify-content:center;align-items:center;transition:transform .2s ease,box-shadow .2s ease}
+    .mic-btn:hover{transform:scale(1.05);box-shadow:0 6px 28px rgba(167,139,250,.6),inset 0 1px 0 rgba(255,255,255,.4)}
+    .mic-btn svg{width:30px;height:30px;fill:#fff;filter:drop-shadow(0 0 8px rgba(255,255,255,.6))}
+    .title{font-size:13px;font-weight:300;letter-spacing:2px;color:rgba(255,255,255,.45);text-align:center;margin-bottom:6px;text-transform:uppercase}
+    .transcript-glass{margin-top:8px;padding:10px 14px;border-radius:14px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);min-height:40px;display:flex;align-items:center;justify-content:center}
+    #transcript{font-size:13px;color:rgba(255,255,255,.35);text-align:center;font-weight:300;letter-spacing:.5px;word-break:break-word}
+    .word-glass{margin-top:10px;padding:18px 20px;border-radius:18px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);box-shadow:inset 0 2px 8px rgba(0,0,0,.2),inset 0 1px 0 rgba(255,255,255,.1);min-height:72px;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}
+    .word-glass::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.3),transparent)}
+    #h{font-size:28px;font-weight:700;color:#fff;text-align:center;text-shadow:0 0 20px rgba(167,139,250,.8),0 0 40px rgba(56,189,248,.4);transition:all .3s cubic-bezier(.34,1.56,.64,1);letter-spacing:2px}
+    #h.pop{animation:wordPop .4s cubic-bezier(.34,1.56,.64,1)}
+    @keyframes wordPop{0%{transform:scale(.7);opacity:0;filter:blur(8px)}100%{transform:scale(1);opacity:1;filter:blur(0)}}
+    .status-bar{display:flex;align-items:center;justify-content:center;gap:8px;margin-top:20px}
+    .dot{width:7px;height:7px;border-radius:50%;background:var(--accent-1);box-shadow:0 0 8px var(--accent-1);animation:pulse-dot 1.4s ease-in-out infinite}
+    .dot:nth-child(2){background:var(--accent-2);box-shadow:0 0 8px var(--accent-2);animation-delay:.2s}
+    .dot:nth-child(3){background:var(--accent-3);box-shadow:0 0 8px var(--accent-3);animation-delay:.4s}
+    @keyframes pulse-dot{0%,100%{transform:scale(1);opacity:.6}50%{transform:scale(1.5);opacity:1}}
+    .status-text{font-size:11px;color:rgba(255,255,255,.35);letter-spacing:1.5px}
+    #h.denied{color:rgba(244,114,182,.9);text-shadow:0 0 20px rgba(244,114,182,.5);font-size:16px}
+     .waveform{display:flex;align-items:center;justify-content:center;gap:4px;height:28px;margin-top:16px}
+     .bar{width:3px;border-radius:2px;background:linear-gradient(to top,var(--accent-2),var(--accent-1));animation:wave 1.2s ease-in-out infinite;box-shadow:0 0 6px rgba(167,139,250,.5)}
+     .bar:nth-child(1){height:14px;animation-delay:0s}.bar:nth-child(2){height:22px;animation-delay:.1s}.bar:nth-child(3){height:18px;animation-delay:.2s}.bar:nth-child(4){height:26px;animation-delay:.3s}.bar:nth-child(5){height:20px;animation-delay:.4s}.bar:nth-child(6){height:28px;animation-delay:.5s}.bar:nth-child(7){height:16px;animation-delay:.6s}.bar:nth-child(8){height:24px;animation-delay:.7s}.bar:nth-child(9){height:18px;animation-delay:.8s}.bar:nth-child(10){height:12px;animation-delay:.9s}
+     @keyframes wave{0%,100%{transform:scaleY(.4);opacity:.5}50%{transform:scaleY(1);opacity:1}}
+     
+     .status-panel{background:rgba(255,255,255,.03);border-radius:14px;padding:16px;border:1px solid rgba(255,255,255,.08);margin-top:20px}
+     .status-item{display:flex;justify-content:space-between;margin-bottom:8px;font-size:13px;color:rgba(255,255,255,.35)}
+     .status-label{font-weight:300}
+     .status-value{font-weight:500;color:rgba(255,255,255,.7)}
+     .motor-dot{width:10px;height:10px;border-radius:50%;background:rgba(255,255,255,.2)}
+     .motor-dot.active{background:var(--accent-2);box-shadow:0 0 8px var(--accent-2)}
+     
+     .manual-controls{background:rgba(255,255,255,.03);border-radius:14px;padding:16px;border:1px solid rgba(255,255,255,.08)}
+     .control-btn{
+       background:rgba(255,255,255,.08);
+       border:1px solid rgba(255,255,255,.2);
+       color:white;
+       padding:12px;
+       border-radius:10px;
+       cursor:pointer;
+       transition:all .2s ease;
+       font-family:'Tajawal',sans-serif;
+       font-size:13px;
+     }
+     .control-btn:hover{
+       background:rgba(255,255,255,.15);
+       transform:translateY(-2px);
+       box-shadow:0 4px 12px rgba(167,139,250,.3);
+     }
+     .control-btn:active{
+       transform:scale(0.95);
+     }
+  </style>
+</head>
+<body>
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+  <div class="orb orb-4"></div>
+
+  <div class="glass-card">
+    <div class="mic-wrap">
+      <div class="ripple-ring"></div>
+      <div class="ripple-ring"></div>
+      <div class="ripple-ring"></div>
+      <div class="mic-btn">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 15a4 4 0 0 0 4-4V6a4 4 0 0 0-8 0v5a4 4 0 0 0 4 4zm-1 2.93A7.001 7.001 0 0 1 5 11H3a9 9 0 0 0 8 8.94V22h2v-2.06A9 9 0 0 0 21 11h-2a7 7 0 0 1-6 6.93z"/>
+        </svg>
+      </div>
+    </div>
+
+    <p class="title">تعرف على الكلام</p>
+
+    <div class="transcript-glass">
+      <p id="transcript">...</p>
+    </div>
+
+    <div class="word-glass">
+      <h2 id="h">تحدث</h2>
+    </div>
+
+    <div class="waveform">
+      <div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div>
+      <div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div>
+    </div>
+
+    <div class="status-bar">
+      <div class="dot"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+      <span class="status-text">استماع</span>
+    </div>
+    
+    <!-- Manual Controls -->
+    <div class="manual-controls" style="margin-top: 20px;">
+      <h3 style="color: rgba(255,255,255,.5); text-align: center; margin-bottom: 15px; font-size: 14px;">التحكم اليدوي</h3>
+      <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; max-width: 200px; margin: 0 auto;">
+        <button onclick="sendCommand('يمين')" class="control-btn">→ يمين</button>
+        <button onclick="sendCommand('شمال')" class="control-btn">← شمال</button>
+        <button onclick="sendCommand('قدام')" class="control-btn">↑ قدام</button>
+        <button onclick="sendCommand('ورا')" class="control-btn">↓ ورا</button>
+        <button onclick="sendCommand('وقف')" class="control-btn" style="grid-column: 1 / -1;">■ وقف</button>
+      </div>
+    </div>
+    
+    <div class="status-panel" style="margin-top: 20px; text-align: center;">
+      <div class="status-item">
+        <span class="status-label">الشاشة:</span>
+        <span id="lcd-status" class="status-value">---</span>
+      </div>
+      <div class="status-item" style="margin: 10px 0;">
+        <span class="status-label">المحركات:</span>
+        <div id="motor-status" style="display: flex; justify-content: center; gap: 5px; margin-top: 5px;">
+          <div class="motor-dot" id="motor1"></div>
+          <div class="motor-dot" id="motor2"></div>
+          <div class="motor-dot" id="motor3"></div>
+          <div class="motor-dot" id="motor4"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const DB_URL = "https://sentra-3ca66-default-rtdb.europe-west1.firebasedatabase.app/command/word.json?auth=zuUhC4VNiO0quwQ3JlmtH6hLf2Lx8YvODFCCuZVC";
+const STATUS_LCD_URL = "https://sentra-3ca66-default-rtdb.europe-west1.firebasedatabase.app/status/lcd.json?auth=zuUhC4VNiO0quwQ3JlmtH6hLf2Lx8YvODFCCuZVC";
+const STATUS_MOTOR_URLS = {
+  motor1: "https://sentra-3ca66-default-rtdb.europe-west1.firebasedatabase.app/status/motor1.json?auth=zuUhC4VNiO0quwQ3JlmtH6hLf2Lx8YvODFCCuZVC",
+  motor2: "https://sentra-3ca66-default-rtdb.europe-west1.firebasedatabase.app/status/motor2.json?auth=zuUhC4VNiO0quwQ3JlmtH6hLf2Lx8YvODFCCuZVC",
+  motor3: "https://sentra-3ca66-default-rtdb.europe-west1.firebasedatabase.app/status/motor3.json?auth=zuUhC4VNiO0quwQ3JlmtH6hLf2Lx8YvODFCCuZVC",
+  motor4: "https://sentra-3ca66-default-rtdb.europe-west1.firebasedatabase.app/status/motor4.json?auth=zuUhC4VNiO0quwQ3JlmtH6hLf2Lx8YvODFCCuZVC"
+};
+    const h = document.getElementById('h');
+    const transcriptEl = document.getElementById('transcript');
+
+const KEYWORD_MAP = {
+  "يمين": [
+    "يمين", "يميناً", "اتجه يمين", "دور يمين", "لف يمين", "خش يمين", 
+    "ناحية اليمين", "جهة اليمين", "اميل يمين", "انعطف يمين", "توجه يمين",
+    "روّح يمين", "حي اليمين", "اتجه لليمين", "دوار يمين",
+    "لف得太", "خشّ يمين", "امال يمين", "يَمين", "يَمينًا",
+    "اسلك طريق اليمين", "خذ اليمين", "متجه لليمين", "مائل لليمين",
+    "عوجة يمين", "انحراف يمين", "انحراف جهة اليمين", " ميلان لليمين",
+    "اتجاة لليمين", "التفاف يمين", "لفه يمين", "خوش يمين", " ناحيه اليمين",
+    "جهه اليمين", "امل يمين", "انعطف جهة اليمين", "توجه جهة اليمين",
+    "روح لليمين", "حيه اليمين", "اتجه لجهة اليمين", "لف لليمين",
+    "خش لليمين"
+  ],
+  "شمال": [
+    "شمال", "يسار", "اتجه شمال", "دور شمال", "لف شمال", "يسار",
+    "اتجه يساراً", "خش شمال", "ناحية الشمال", "جهة اليسار", "اميل يسار",
+    "انعطف شمال", "توجه شمال", "شمالاً", "روّح شمال", "حي للشمال",
+    "اتجه لليسار", "دوار شمال", "욧 شمال", "욧 يسار", "욧 اليسار",
+    " يساراً", " اتجه لليسار", "لف يسار", "خش يسار",
+    "ناحية اليسار", "جهة الشمال", "اميل شمال", "انعطف جهة الشمال",
+    "توجه جهة الشمال", "روح لليسار", "حي الشمال", "اتجه لجهة اليسار",
+    "لف لليسار", "خش لليسار", "عوجة شمال", "انحراف شمال"
+  ],
+  "قدام": [
+    "قدام", "امام", "الأمام", "تقدم", "للأمام", "امشي", "تحرك", "كمل",
+    "دغري", "على طول", "اطلع قدام", "توجه قدام", "اماماً", "روّح قدام",
+    "قدماً", "امامي", "تقدم向前", "امشي قدام", "للأمام قدماً",
+    "سير قدام", "المشي قدام", "التقدم قدام", "الامام قدام",
+    "قدماً قدام", "امامي قدام", "امام قدماً", "امامي قداماً",
+    "امشي قداماً", "تحرك قداماً", "سير قداماً", "تقدماً قداماً",
+    "امشي قدماً", "امشي قداماً", "امشي قدام قدام"
+  ],
+  "ورا": [
+    "ورا", "الخلف", "للخلف", "تراجع", "ارجع", "ارجع ورا", "لورا",
+    "عشيري", "ارجع تاني", "تراجع للخلف", "إرجع", "رجع", "رجع ورا",
+    "خلف", "ورّ", "للخلف قدماً", "للخلف قدماً", "الخلف قدماً",
+    "الوراء قدماً", "الخلف قدماً", "الوراء قدماً", "الخلف قدماً",
+    "الخلف قدماً", "الخلف قدماً", "الخلف قدماً", "الخلف قدماً",
+    "رجوع للخلف", "ركوب للخلف", "السير للخلف", "المشي للخلف",
+    "تراجع للخلف قدماً", "التراجع للخلف", "التراجع قدماً"
+  ],
+  "وقف": [
+    "وقف", "توقف", "قف", "استنى", "اوقف", "بس", "خلاص", "اثبت",
+    "فرمل", "هدئ", "كفاية", "توق", "توقّف", "إوقف", "ثبت",
+    "إنتظر", "إنتظر.", "إهدأ", "تكفّى", "ايقاف", "اقف", "ثابت",
+    "متوقف", "لا تتحرك", "اقف مكانك", "ثابت مكانك", "لا تمشي",
+    "وقفة", "واقف", "واقف مكانك", "ثابت ولا تتحرك"
+  ],
+};
+
+    function extractKeyword(transcript) {
+      const normalized = transcript.trim();
+      for (const [keyword, phrases] of Object.entries(KEYWORD_MAP)) {
+        for (const phrase of phrases) {
+          if (normalized.includes(phrase)) return keyword;
+        }
+      }
+      return null;
+    }
+
+    function setWord(word) {
+      h.classList.remove('pop');
+      void h.offsetWidth;
+      h.textContent = word;
+      h.classList.add('pop');
+    }
+
+     function sendToFirebase(keyword) {
+       fetch(DB_URL, {
+         method: 'PUT',
+         headers: { 'Content-Type': 'application/json' },
+         body: JSON.stringify({ word: keyword })
+       });
+     }
+     
+     function sendCommand(command) {
+       // Send command to Firebase
+       fetch(DB_URL, {
+         method: 'PUT',
+         headers: { 'Content-Type': 'application/json' },
+         body: JSON.stringify({ word: command })
+       });
+       
+       // Update display
+       setWord(command);
+       
+       // Provide visual feedback
+       const btn = event.target;
+       btn.style.transform = 'scale(0.95)';
+       setTimeout(() => {
+         btn.style.transform = 'scale(1)';
+       }, 100);
+     }
+     
+     // Fetch status from Firebase
+     function updateStatus() {
+       Promise.all([
+         fetch(STATUS_LCD_URL).then(r => r.json()),
+         fetch(STATUS_MOTOR_URLS.motor1).then(r => r.json()),
+         fetch(STATUS_MOTOR_URLS.motor2).then(r => r.json()),
+         fetch(STATUS_MOTOR_URLS.motor3).then(r => r.json()),
+         fetch(STATUS_MOTOR_URLS.motor4).then(r => r.json())
+       ]).then(([lcd, m1, m2, m3, m4]) => {
+         document.getElementById('lcd-status').textContent = lcd || '---';
+         
+         const motors = [m1, m2, m3, m4];
+         motors.forEach((motor, index) => {
+           const motorEl = document.getElementById(`motor${index + 1}`);
+           if (motorEl) {
+             motorEl.classList.toggle('active', motor === 1);
+           }
+         });
+       }).catch(err => {
+         console.warn('Status update failed:', err);
+       });
+     }
+
+     // Initialize status updates
+     updateStatus(); // Initial load
+     setInterval(updateStatus, 2000); // Update every 2 seconds
+     
+     navigator.mediaDevices.getUserMedia({ audio: true })
+       .then(() => {
+         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+         const rec = new SpeechRecognition();
+         rec.lang = 'ar-EG';
+         rec.continuous = true;
+         rec.interimResults = true;
+
+         rec.onresult = e => {
+           let finalTranscript = '';
+           for (let i = e.resultIndex; i < e.results.length; i++) {
+             if (e.results[i].isFinal) finalTranscript += e.results[i][0].transcript;
+           }
+
+           if (!finalTranscript) return;
+
+           transcriptEl.textContent = finalTranscript;
+
+           const keyword = extractKeyword(finalTranscript);
+           if (keyword) {
+             setWord(keyword);
+             sendToFirebase(keyword);
+           } else {
+             setWord('؟');
+             sendToFirebase('');
+           }
+         };
+
+         rec.start();
+       })
+       .catch(() => {
+         h.textContent = 'تم الرفض';
+         h.classList.add('denied');
+       });
+  </script>
+</body>
+</html>
