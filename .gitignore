@@ -1,2 +1,6 @@
 .pio
-.vscode
+.vscodegh_*
+
+# GitHub CLI files
+gh_*
+
