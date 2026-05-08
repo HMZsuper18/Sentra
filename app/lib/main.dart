@@ -286,7 +286,7 @@ class _SentraHomeState extends State<SentraHome> with TickerProviderStateMixin {
     _foundDevices.clear();
     FlutterBluePlus.scanResults.listen((results) {
       for (final result in results) {
-        if (result.device.name.startsWith('Sentra') &&
+        if (result.device.platformName.startsWith('Sentra') &&
             !_foundDevices.any((d) => d.remoteId == result.device.remoteId)) {
           setState(() {
             _foundDevices.add(result.device);
@@ -517,8 +517,10 @@ class _SentraHomeState extends State<SentraHome> with TickerProviderStateMixin {
     _speech
         .listen(
           localeId: 'ar_EG',
-          listenMode: stt.ListenMode.dictation,
-          partialResults: true,
+          listenOptions: stt.SpeechListenOptions(
+            listenMode: stt.ListenMode.dictation,
+            partialResults: true,
+          ),
           onResult: (result) {
             if (!mounted) return;
             final words = result.recognizedWords.trim();
@@ -643,16 +645,16 @@ class _SentraHomeState extends State<SentraHome> with TickerProviderStateMixin {
       height: 48,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(14),
-        color: Colors.white.withOpacity(0.08),
+        color: Colors.white.withValues(alpha: 0.08),
         border: Border.all(
           color: (_connectedDevice != null)
-              ? _c4.withOpacity(0.5)
-              : Colors.white.withOpacity(0.15),
+              ? _c4.withValues(alpha: 0.5)
+              : Colors.white.withValues(alpha: 0.15),
         ),
       ),
       child: Icon(
         Icons.wifi,
-        color: (_connectedDevice != null) ? _c4 : Colors.white.withOpacity(0.4),
+        color: (_connectedDevice != null) ? _c4 : Colors.white.withValues(alpha: 0.4),
         size: 22,
       ),
     ),
@@ -697,7 +699,7 @@ class _SentraHomeState extends State<SentraHome> with TickerProviderStateMixin {
                           'عبر البلوتوث',
                           style: TextStyle(
                             fontSize: 11,
-                            color: _c2.withOpacity(0.7),
+                            color: _c2.withValues(alpha: 0.7),
                           ),
                         ),
                       ],
@@ -710,7 +712,7 @@ class _SentraHomeState extends State<SentraHome> with TickerProviderStateMixin {
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(8),
-                      color: Colors.white.withOpacity(0.1),
+                      color: Colors.white.withValues(alpha: 0.1),
                     ),
                     child: const Icon(
                       Icons.close,
@@ -749,11 +751,11 @@ class _SentraHomeState extends State<SentraHome> with TickerProviderStateMixin {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(14),
-        color: isConnected ? _c4.withOpacity(0.1) : Colors.red.withOpacity(0.1),
+        color: isConnected ? _c4.withValues(alpha: 0.1) : Colors.red.withValues(alpha: 0.1),
         border: Border.all(
           color: isConnected
-              ? _c4.withOpacity(0.3)
-              : Colors.red.withOpacity(0.3),
+              ? _c4.withValues(alpha: 0.3)
+              : Colors.red.withValues(alpha: 0.3),
         ),
       ),
       child: Row(
@@ -766,7 +768,7 @@ class _SentraHomeState extends State<SentraHome> with TickerProviderStateMixin {
               color: isConnected ? _c4 : Colors.red,
               boxShadow: [
                 BoxShadow(
-                  color: (isConnected ? _c4 : Colors.red).withOpacity(0.6),
+                  color: (isConnected ? _c4 : Colors.red).withValues(alpha: 0.6),
                   blurRadius: 8,
                 ),
               ],
@@ -810,7 +812,7 @@ class _SentraHomeState extends State<SentraHome> with TickerProviderStateMixin {
                 ),
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(8),
-                  color: _c2.withOpacity(0.2),
+                  color: _c2.withValues(alpha: 0.2),
                 ),
                 child: Text(
                   _bleScanning ? 'جاري البحث...' : 'بحث',
@@ -826,20 +828,20 @@ class _SentraHomeState extends State<SentraHome> with TickerProviderStateMixin {
             padding: const EdgeInsets.all(14),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(12),
-              color: Colors.white.withOpacity(0.04),
+              color: Colors.white.withValues(alpha: 0.04),
             ),
             child: Row(
               children: [
                 Icon(
                   Icons.bluetooth_searching,
-                  color: Colors.white.withOpacity(0.4),
+                  color: Colors.white.withValues(alpha: 0.4),
                   size: 18,
                 ),
                 const SizedBox(width: 10),
                 Text(
                   'لم يتم العثور على أجهزة',
                   style: TextStyle(
-                    color: Colors.white.withOpacity(0.4),
+                    color: Colors.white.withValues(alpha: 0.4),
                     fontSize: 12,
                   ),
                 ),
@@ -856,8 +858,8 @@ class _SentraHomeState extends State<SentraHome> with TickerProviderStateMixin {
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(10),
-                    color: Colors.white.withOpacity(0.06),
-                    border: Border.all(color: Colors.white.withOpacity(0.1)),
+                    color: Colors.white.withValues(alpha: 0.06),
+                    border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
                   ),
                   child: Row(
                     children: [
@@ -865,8 +867,8 @@ class _SentraHomeState extends State<SentraHome> with TickerProviderStateMixin {
                       const SizedBox(width: 10),
                       Expanded(
                         child: Text(
-                          device.name.isNotEmpty
-                              ? device.name
+                          device.platformName.isNotEmpty
+                              ? device.platformName
                               : 'Sentra Device',
                           style: const TextStyle(
                             color: Colors.white,
@@ -888,8 +890,8 @@ class _SentraHomeState extends State<SentraHome> with TickerProviderStateMixin {
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(10),
-              color: Colors.black.withOpacity(0.3),
-              border: Border.all(color: Colors.white.withOpacity(0.1)),
+              color: Colors.black.withValues(alpha: 0.3),
+              border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -906,7 +908,7 @@ class _SentraHomeState extends State<SentraHome> with TickerProviderStateMixin {
                 Text(
                   _debugInfo,
                   style: TextStyle(
-                    color: Colors.white.withOpacity(0.7),
+                    color: Colors.white.withValues(alpha: 0.7),
                     fontSize: 10,
                     fontFamily: 'monospace',
                   ),
@@ -928,12 +930,12 @@ class _SentraHomeState extends State<SentraHome> with TickerProviderStateMixin {
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(12),
           color: canSend
-              ? _c4.withOpacity(0.2)
-              : Colors.white.withOpacity(0.08),
+              ? _c4.withValues(alpha: 0.2)
+              : Colors.white.withValues(alpha: 0.08),
           border: Border.all(
             color: canSend
-                ? _c4.withOpacity(0.4)
-                : Colors.white.withOpacity(0.1),
+                ? _c4.withValues(alpha: 0.4)
+                : Colors.white.withValues(alpha: 0.1),
           ),
         ),
         child: Center(
@@ -942,14 +944,14 @@ class _SentraHomeState extends State<SentraHome> with TickerProviderStateMixin {
             children: [
               Icon(
                 Icons.send,
-                color: canSend ? _c4 : Colors.white.withOpacity(0.3),
+                color: canSend ? _c4 : Colors.white.withValues(alpha: 0.3),
                 size: 18,
               ),
               const SizedBox(width: 8),
               Text(
                 'إرسال إعدادات الواي فاي',
                 style: TextStyle(
-                  color: canSend ? _c4 : Colors.white.withOpacity(0.3),
+                  color: canSend ? _c4 : Colors.white.withValues(alpha: 0.3),
                   fontSize: 14,
                   fontWeight: FontWeight.w500,
                 ),
@@ -966,8 +968,8 @@ class _SentraHomeState extends State<SentraHome> with TickerProviderStateMixin {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(14),
-        color: Colors.white.withOpacity(0.04),
-        border: Border.all(color: Colors.white.withOpacity(0.1)),
+        color: Colors.white.withValues(alpha: 0.04),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -979,7 +981,7 @@ class _SentraHomeState extends State<SentraHome> with TickerProviderStateMixin {
               Text(
                 label,
                 style: TextStyle(
-                  color: Colors.white.withOpacity(0.5),
+                  color: Colors.white.withValues(alpha: 0.5),
                   fontSize: 12,
                   fontWeight: FontWeight.w300,
                 ),
@@ -1034,12 +1036,12 @@ class _SentraHomeState extends State<SentraHome> with TickerProviderStateMixin {
                 ),
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(8),
-                  color: Colors.white.withOpacity(0.08),
+                  color: Colors.white.withValues(alpha: 0.08),
                 ),
                 child: Text(
                   'محاكاة',
                   style: TextStyle(
-                    color: Colors.white.withOpacity(0.5),
+                    color: Colors.white.withValues(alpha: 0.5),
                     fontSize: 11,
                   ),
                 ),
@@ -1053,8 +1055,8 @@ class _SentraHomeState extends State<SentraHome> with TickerProviderStateMixin {
             padding: const EdgeInsets.all(14),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(12),
-              color: _c4.withOpacity(0.08),
-              border: Border.all(color: _c4.withOpacity(0.2)),
+              color: _c4.withValues(alpha: 0.08),
+              border: Border.all(color: _c4.withValues(alpha: 0.2)),
             ),
             child: Row(
               children: [
@@ -1079,8 +1081,8 @@ class _SentraHomeState extends State<SentraHome> with TickerProviderStateMixin {
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(10),
-                  color: Colors.red.withOpacity(0.1),
-                  border: Border.all(color: Colors.red.withOpacity(0.3)),
+                  color: Colors.red.withValues(alpha: 0.1),
+                  border: Border.all(color: Colors.red.withValues(alpha: 0.3)),
                 ),
                 child: Row(
                   children: [
@@ -1091,7 +1093,7 @@ class _SentraHomeState extends State<SentraHome> with TickerProviderStateMixin {
                       ),
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(6),
-                        color: Colors.red.withOpacity(0.2),
+                        color: Colors.red.withValues(alpha: 0.2),
                       ),
                       child: Text(
                         code,
@@ -1108,7 +1110,7 @@ class _SentraHomeState extends State<SentraHome> with TickerProviderStateMixin {
                       child: Text(
                         _errorCodes[code] ?? 'Unknown',
                         style: TextStyle(
-                          color: Colors.red.withOpacity(0.9),
+                          color: Colors.red.withValues(alpha: 0.9),
                           fontSize: 12,
                         ),
                       ),
@@ -1132,8 +1134,8 @@ class _SentraHomeState extends State<SentraHome> with TickerProviderStateMixin {
             padding: const EdgeInsets.all(14),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(14),
-              color: _c1.withOpacity(0.1),
-              border: Border.all(color: _c1.withOpacity(0.3)),
+              color: _c1.withValues(alpha: 0.1),
+              border: Border.all(color: _c1.withValues(alpha: 0.3)),
             ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -1167,7 +1169,7 @@ class _SentraHomeState extends State<SentraHome> with TickerProviderStateMixin {
           Text(
             'اختبار المحركات',
             style: TextStyle(
-              color: Colors.white.withOpacity(0.6),
+              color: Colors.white.withValues(alpha: 0.6),
               fontSize: 12,
               fontWeight: FontWeight.w300,
             ),
@@ -1191,7 +1193,7 @@ class _SentraHomeState extends State<SentraHome> with TickerProviderStateMixin {
           Text(
             'سجل التصحيح',
             style: TextStyle(
-              color: Colors.white.withOpacity(0.6),
+              color: Colors.white.withValues(alpha: 0.6),
               fontSize: 12,
               fontWeight: FontWeight.w300,
             ),
@@ -1202,15 +1204,15 @@ class _SentraHomeState extends State<SentraHome> with TickerProviderStateMixin {
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(10),
-              color: Colors.black.withOpacity(0.3),
-              border: Border.all(color: Colors.white.withOpacity(0.1)),
+              color: Colors.black.withValues(alpha: 0.3),
+              border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
             ),
             child: _debugLogs.isEmpty
                 ? Center(
                     child: Text(
                       'لا يوجد سجل',
                       style: TextStyle(
-                        color: Colors.white.withOpacity(0.3),
+                        color: Colors.white.withValues(alpha: 0.3),
                         fontSize: 12,
                       ),
                     ),
@@ -1221,7 +1223,7 @@ class _SentraHomeState extends State<SentraHome> with TickerProviderStateMixin {
                     itemBuilder: (_, i) => Text(
                       '> ${_debugLogs[_debugLogs.length - 1 - i]}',
                       style: TextStyle(
-                        color: _c4.withOpacity(0.8),
+                        color: _c4.withValues(alpha: 0.8),
                         fontSize: 11,
                         fontFamily: 'monospace',
                       ),
@@ -1238,13 +1240,13 @@ class _SentraHomeState extends State<SentraHome> with TickerProviderStateMixin {
                     padding: const EdgeInsets.symmetric(vertical: 10),
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(10),
-                      color: Colors.white.withOpacity(0.08),
+                      color: Colors.white.withValues(alpha: 0.08),
                     ),
                     child: Center(
                       child: Text(
                         'مسح السجل',
                         style: TextStyle(
-                          color: Colors.white.withOpacity(0.6),
+                          color: Colors.white.withValues(alpha: 0.6),
                           fontSize: 12,
                         ),
                       ),
@@ -1260,7 +1262,7 @@ class _SentraHomeState extends State<SentraHome> with TickerProviderStateMixin {
                     padding: const EdgeInsets.symmetric(vertical: 10),
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(10),
-                      color: _c2.withOpacity(0.2),
+                      color: _c2.withValues(alpha: 0.2),
                     ),
                     child: Center(
                       child: Text(
@@ -1289,8 +1291,8 @@ class _SentraHomeState extends State<SentraHome> with TickerProviderStateMixin {
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(8),
-          color: Colors.white.withOpacity(0.06),
-          border: Border.all(color: Colors.white.withOpacity(0.15)),
+          color: Colors.white.withValues(alpha: 0.06),
+          border: Border.all(color: Colors.white.withValues(alpha: 0.15)),
         ),
         child: Text(
           label,
@@ -1386,11 +1388,11 @@ class _SentraHomeState extends State<SentraHome> with TickerProviderStateMixin {
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(24),
-          color: Colors.white.withOpacity(0.06),
-          border: Border.all(color: Colors.white.withOpacity(0.15)),
+          color: Colors.white.withValues(alpha: 0.06),
+          border: Border.all(color: Colors.white.withValues(alpha: 0.15)),
           boxShadow: [
             BoxShadow(
-              color: wc.withOpacity(0.15),
+              color: wc.withValues(alpha: 0.15),
               blurRadius: 30,
               spreadRadius: 4,
             ),
@@ -1423,15 +1425,15 @@ class _SentraHomeState extends State<SentraHome> with TickerProviderStateMixin {
                   height: 110,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(14),
-                    color: Colors.white.withOpacity(0.07),
-                    border: Border.all(color: Colors.white.withOpacity(0.2)),
+                    color: Colors.white.withValues(alpha: 0.07),
+                    border: Border.all(color: Colors.white.withValues(alpha: 0.2)),
                     boxShadow: [
-                      BoxShadow(color: _c1.withOpacity(0.1), blurRadius: 20),
+                      BoxShadow(color: _c1.withValues(alpha: 0.1), blurRadius: 20),
                     ],
                   ),
                   child: Icon(
                     Icons.smart_toy_rounded,
-                    color: _c1.withOpacity(0.8),
+                    color: _c1.withValues(alpha: 0.8),
                     size: 34,
                   ),
                 ),
@@ -1486,13 +1488,13 @@ class _SentraHomeState extends State<SentraHome> with TickerProviderStateMixin {
         boxShadow: isActive
             ? [
                 BoxShadow(
-                  color: stateColor.withOpacity(0.7),
+                  color: stateColor.withValues(alpha: 0.7),
                   blurRadius: 14,
                   spreadRadius: 2,
                 ),
               ]
             : [],
-        border: Border.all(color: stateColor.withOpacity(0.5), width: 1.5),
+        border: Border.all(color: stateColor.withValues(alpha: 0.5), width: 1.5),
       ),
     );
   }
@@ -1512,11 +1514,11 @@ class _SentraHomeState extends State<SentraHome> with TickerProviderStateMixin {
             borderRadius: BorderRadius.circular(10),
             color: const Color(0xFF001a33),
             border: Border.all(
-              color: isCmd ? wc.withOpacity(0.6) : _c2.withOpacity(0.6),
+              color: isCmd ? wc.withValues(alpha: 0.6) : _c2.withValues(alpha: 0.6),
             ),
             boxShadow: [
               BoxShadow(
-                color: isCmd ? wc.withOpacity(glow) : _c2.withOpacity(glow),
+                color: isCmd ? wc.withValues(alpha: glow) : _c2.withValues(alpha: glow),
                 blurRadius: 18,
                 spreadRadius: 2,
               ),
@@ -1526,7 +1528,7 @@ class _SentraHomeState extends State<SentraHome> with TickerProviderStateMixin {
             children: [
               Icon(
                 Icons.display_settings,
-                color: isCmd ? wc.withOpacity(0.6) : _c2.withOpacity(0.6),
+                color: isCmd ? wc.withValues(alpha: 0.6) : _c2.withValues(alpha: 0.6),
                 size: 14,
               ),
               const SizedBox(width: 8),
@@ -1556,8 +1558,8 @@ class _SentraHomeState extends State<SentraHome> with TickerProviderStateMixin {
     padding: const EdgeInsets.all(16),
     decoration: BoxDecoration(
       borderRadius: BorderRadius.circular(14),
-      color: Colors.white.withOpacity(0.03),
-      border: Border.all(color: Colors.white.withOpacity(0.08)),
+      color: Colors.white.withValues(alpha: 0.03),
+      border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
     ),
     child: Column(
       children: [
@@ -1594,8 +1596,8 @@ class _SentraHomeState extends State<SentraHome> with TickerProviderStateMixin {
         padding: const EdgeInsets.symmetric(vertical: 12),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(10),
-          color: Colors.white.withOpacity(0.08),
-          border: Border.all(color: Colors.white.withOpacity(0.2)),
+          color: Colors.white.withValues(alpha: 0.08),
+          border: Border.all(color: Colors.white.withValues(alpha: 0.2)),
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -1609,7 +1611,7 @@ class _SentraHomeState extends State<SentraHome> with TickerProviderStateMixin {
               label,
               style: TextStyle(
                 fontSize: 12,
-                color: Colors.white.withOpacity(0.7),
+                color: Colors.white.withValues(alpha: 0.7),
               ),
             ),
           ],
@@ -1703,7 +1705,7 @@ class _SentraHomeState extends State<SentraHome> with TickerProviderStateMixin {
                     color: e.$2,
                     borderRadius: BorderRadius.circular(3),
                     boxShadow: [
-                      BoxShadow(color: e.$2.withOpacity(0.5), blurRadius: 6),
+                      BoxShadow(color: e.$2.withValues(alpha: 0.5), blurRadius: 6),
                     ],
                   ),
                 ),
@@ -1711,7 +1713,7 @@ class _SentraHomeState extends State<SentraHome> with TickerProviderStateMixin {
                 Text(
                   e.$3,
                   style: TextStyle(
-                    color: Colors.white.withOpacity(0.55),
+                    color: Colors.white.withValues(alpha: 0.55),
                     fontSize: 11,
                   ),
                 ),
@@ -1725,10 +1727,10 @@ class _SentraHomeState extends State<SentraHome> with TickerProviderStateMixin {
   // ── Background ────────────────────────────────────────────────────────────
   Widget _buildBackground() {
     final orbs = [
-      (_c1.withOpacity(0.45), 500.0, -150.0, -150.0, false, false),
-      (_c2.withOpacity(0.40), 420.0, -100.0, -100.0, true, false),
-      (_c3.withOpacity(0.35), 320.0, 40.0, 0.0, false, true),
-      (_c4.withOpacity(0.28), 260.0, 80.0, 80.0, true, true),
+      (_c1.withValues(alpha: 0.45), 500.0, -150.0, -150.0, false, false),
+      (_c2.withValues(alpha: 0.40), 420.0, -100.0, -100.0, true, false),
+      (_c3.withValues(alpha: 0.35), 320.0, 40.0, 0.0, false, true),
+      (_c4.withValues(alpha: 0.28), 260.0, 80.0, 80.0, true, true),
     ];
     return Stack(
       fit: StackFit.expand,
@@ -1811,12 +1813,12 @@ class _SentraHomeState extends State<SentraHome> with TickerProviderStateMixin {
     padding: const EdgeInsets.fromLTRB(32, 36, 32, 32),
     decoration: BoxDecoration(
       borderRadius: BorderRadius.circular(28),
-      color: Colors.white.withOpacity(0.07),
-      border: Border.all(color: Colors.white.withOpacity(0.22)),
+      color: Colors.white.withValues(alpha: 0.07),
+      border: Border.all(color: Colors.white.withValues(alpha: 0.22)),
       boxShadow: [
-        BoxShadow(color: Colors.black.withOpacity(0.35), blurRadius: 40),
+        BoxShadow(color: Colors.black.withValues(alpha: 0.35), blurRadius: 40),
         BoxShadow(
-          color: _c1.withOpacity(0.09),
+          color: _c1.withValues(alpha: 0.09),
           blurRadius: 60,
           spreadRadius: 10,
         ),
@@ -1825,10 +1827,10 @@ class _SentraHomeState extends State<SentraHome> with TickerProviderStateMixin {
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,
         colors: [
-          Colors.white.withOpacity(0.13),
-          Colors.white.withOpacity(0.03),
+          Colors.white.withValues(alpha: 0.13),
+          Colors.white.withValues(alpha: 0.03),
           Colors.transparent,
-          Colors.white.withOpacity(0.04),
+          Colors.white.withValues(alpha: 0.04),
         ],
         stops: const [0.0, 0.35, 0.6, 1.0],
       ),
@@ -1839,9 +1841,9 @@ class _SentraHomeState extends State<SentraHome> with TickerProviderStateMixin {
   // ── Mic ───────────────────────────────────────────────────────────────────
   Widget _buildMic() {
     final rippleColors = [
-      _c1.withOpacity(0.55),
-      _c2.withOpacity(0.42),
-      _c3.withOpacity(0.30),
+      _c1.withValues(alpha: 0.55),
+      _c2.withValues(alpha: 0.42),
+      _c3.withValues(alpha: 0.30),
     ];
     return SizedBox(
       width: 110,
@@ -1878,10 +1880,10 @@ class _SentraHomeState extends State<SentraHome> with TickerProviderStateMixin {
                   height: 84,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    border: Border.all(color: _c2.withOpacity(0.9), width: 2.5),
+                    border: Border.all(color: _c2.withValues(alpha: 0.9), width: 2.5),
                     boxShadow: [
                       BoxShadow(
-                        color: _c2.withOpacity(0.55),
+                        color: _c2.withValues(alpha: 0.55),
                         blurRadius: 22,
                         spreadRadius: 5,
                       ),
@@ -1896,8 +1898,8 @@ class _SentraHomeState extends State<SentraHome> with TickerProviderStateMixin {
             builder: (_, _) {
               final t = _speakPulseCtrl.value;
               final glowColor = _isSpeaking
-                  ? _c2.withOpacity(0.65 + t * 0.30)
-                  : _c1.withOpacity(0.40);
+                  ? _c2.withValues(alpha: 0.65 + t * 0.30)
+                  : _c1.withValues(alpha: 0.40);
               return Container(
                 width: 72,
                 height: 72,
@@ -1907,10 +1909,10 @@ class _SentraHomeState extends State<SentraHome> with TickerProviderStateMixin {
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                     colors: _isSpeaking
-                        ? [_c2.withOpacity(0.55), _c1.withOpacity(0.40)]
-                        : [_c1.withOpacity(0.35), _c2.withOpacity(0.25)],
+                        ? [_c2.withValues(alpha: 0.55), _c1.withValues(alpha: 0.40)]
+                        : [_c1.withValues(alpha: 0.35), _c2.withValues(alpha: 0.25)],
                   ),
-                  border: Border.all(color: Colors.white.withOpacity(0.3)),
+                  border: Border.all(color: Colors.white.withValues(alpha: 0.3)),
                   boxShadow: [
                     BoxShadow(
                       color: glowColor,
@@ -1937,7 +1939,7 @@ class _SentraHomeState extends State<SentraHome> with TickerProviderStateMixin {
       fontSize: 13,
       fontWeight: FontWeight.w300,
       letterSpacing: 2,
-      color: Colors.white.withOpacity(0.45),
+      color: Colors.white.withValues(alpha: 0.45),
     ),
     textAlign: TextAlign.center,
   );
@@ -1947,14 +1949,14 @@ class _SentraHomeState extends State<SentraHome> with TickerProviderStateMixin {
     padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
     decoration: BoxDecoration(
       borderRadius: BorderRadius.circular(14),
-      color: Colors.white.withOpacity(0.03),
-      border: Border.all(color: Colors.white.withOpacity(0.08)),
+      color: Colors.white.withValues(alpha: 0.03),
+      border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
     ),
     child: Text(
       _transcript,
       style: TextStyle(
         fontSize: 13,
-        color: Colors.white.withOpacity(0.38),
+        color: Colors.white.withValues(alpha: 0.38),
         fontWeight: FontWeight.w300,
         letterSpacing: 0.5,
       ),
@@ -1968,11 +1970,11 @@ class _SentraHomeState extends State<SentraHome> with TickerProviderStateMixin {
     constraints: const BoxConstraints(minHeight: 72),
     decoration: BoxDecoration(
       borderRadius: BorderRadius.circular(18),
-      color: Colors.white.withOpacity(0.05),
-      border: Border.all(color: Colors.white.withOpacity(0.12)),
+      color: Colors.white.withValues(alpha: 0.05),
+      border: Border.all(color: Colors.white.withValues(alpha: 0.12)),
       boxShadow: [
         BoxShadow(
-          color: Colors.black.withOpacity(0.2),
+          color: Colors.black.withValues(alpha: 0.2),
           blurRadius: 8,
           offset: const Offset(0, 2),
         ),
@@ -1989,11 +1991,11 @@ class _SentraHomeState extends State<SentraHome> with TickerProviderStateMixin {
             style: TextStyle(
               fontSize: _denied ? 18 : 28,
               fontWeight: FontWeight.bold,
-              color: _denied ? _c3.withOpacity(0.9) : Colors.white,
+              color: _denied ? _c3.withValues(alpha: 0.9) : Colors.white,
               letterSpacing: 2,
               shadows: [
-                Shadow(color: _c1.withOpacity(0.8), blurRadius: 20),
-                Shadow(color: _c2.withOpacity(0.4), blurRadius: 40),
+                Shadow(color: _c1.withValues(alpha: 0.8), blurRadius: 20),
+                Shadow(color: _c2.withValues(alpha: 0.4), blurRadius: 40),
               ],
             ),
             textAlign: TextAlign.center,
@@ -2030,7 +2032,7 @@ class _SentraHomeState extends State<SentraHome> with TickerProviderStateMixin {
                   ),
                   boxShadow: [
                     BoxShadow(
-                      color: (_isSpeaking ? _c3 : _c1).withOpacity(0.5),
+                      color: (_isSpeaking ? _c3 : _c1).withValues(alpha: 0.5),
                       blurRadius: 6,
                     ),
                   ],
