@@ -86,4 +86,4 @@ cd website && firebase deploy
 
 ## License
 
-MIT
+See [LICENSE](LICENSE) for details.
