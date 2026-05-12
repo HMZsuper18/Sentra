@@ -1,0 +1,26 @@
+3D Printing Settings Prompt (Optimized for ABS)
+
+    Material: ABS (Acrylonitrile Butadiene Styrene)
+    Printer Model: Prusa CoreOne (or equivalent)
+
+    Core Parameters:
+
+        Layer Height: 0.2mm (Standard for balance between speed and strength).
+
+        Infill Density: 20% - 25% (To support the weight of 11.1V batteries and motors).
+
+        Infill Pattern: Gyroid or Grid (For multi-directional structural strength).
+
+        Nozzle Temperature: 260°C.
+
+        Bed Temperature: 110°C.
+
+    Critical Structural Settings:
+
+        Supports: Enable "Support on build plate only". Use Organic or Snug style to ensure the motor housing and ESP32 slot ceilings don't sag.
+
+        Brim: Enable Brim with a width of 5mm to 8mm. This is essential to prevent corner warping/lifting, which is common with ABS.
+
+        Cooling: Keep the fan speed at a minimum (10-20%) or OFF for the first few layers to prevent cracking/delamination.
+
+        Perimeters (Walls): Set to at least 3 wall loops for a tough, durable chassis

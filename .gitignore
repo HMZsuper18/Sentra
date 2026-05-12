@@ -4,3 +4,6 @@
 # GitHub CLI files
 gh_*
 
+3D/gcode_body.gcode
+3D/body.FCStd
+3D/body.20260512-104900.FCStd
