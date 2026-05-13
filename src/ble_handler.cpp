@@ -1,6 +1,12 @@
 #include "ble_handler.h"
 #include "config.h"
+#include "wifi_handler.h"
 #include <Preferences.h>
+#include <BLEDevice.h>
+#include <BLEUtils.h>
+#include <BLEServer.h>
+#include <BLE2902.h>
+#include <WiFi.h>
 
 extern Preferences preferences;
 
@@ -64,8 +70,6 @@ class BoardNameCallbacks : public BLECharacteristicCallbacks {
         }
     }
 };
-
-extern void connectToWifi();
 
 void initBLE() {
     BLEDevice::init(boardName.c_str());

@@ -1,9 +1,10 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
+#include "secrets.h"
+
 // ── Firebase ─────────────────────────────────────────────────────────────────
 #define DB_URL   "https://sentra-3ca66-default-rtdb.europe-west1.firebasedatabase.app/"
-#define DB_TOKEN "zuUhC4VNiO0quwQ3JlmtH6hLf2Lx8YvODFCCuZVC"
 
 // ── Timing ────────────────────────────────────────────────────────────────────
 #define POLL_INTERVAL        200UL

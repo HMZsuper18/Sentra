@@ -12,8 +12,8 @@ extern FirebaseConfig config;
 extern String currentErrors;
 
 void connectToWifi() {
-    String ssid = preferences.getString("ssid", "");
-    String password = preferences.getString("password", "");
+    String ssid = preferences.getString("ssid", DEFAULT_SSID);
+    String password = preferences.getString("password", DEFAULT_PASS);
 
     if (ssid.length() == 0) {
         Serial.println("No WiFi credentials stored");
