@@ -10,6 +10,7 @@
             "includePath": [
                 "/home/hamzah/develop/Sentra/src",
                 "/home/hamzah/.platformio/packages/framework-arduinoespressif32/libraries/Preferences/src",
+                "/home/hamzah/.platformio/packages/framework-arduinoespressif32/libraries/BLE/src",
                 "/home/hamzah/develop/Sentra/.pio/libdeps/esp32dev/Adafruit SSD1306",
                 "/home/hamzah/develop/Sentra/.pio/libdeps/esp32dev/Adafruit GFX Library",
                 "/home/hamzah/develop/Sentra/.pio/libdeps/esp32dev/Adafruit BusIO",
@@ -225,7 +226,6 @@
                 "/home/hamzah/.platformio/packages/framework-arduinoespressif32/variants/esp32",
                 "/home/hamzah/.platformio/packages/framework-arduinoespressif32/libraries/ArduinoOTA/src",
                 "/home/hamzah/.platformio/packages/framework-arduinoespressif32/libraries/AsyncUDP/src",
-                "/home/hamzah/.platformio/packages/framework-arduinoespressif32/libraries/BLE/src",
                 "/home/hamzah/.platformio/packages/framework-arduinoespressif32/libraries/BluetoothSerial/src",
                 "/home/hamzah/.platformio/packages/framework-arduinoespressif32/libraries/DNSServer/src",
                 "/home/hamzah/.platformio/packages/framework-arduinoespressif32/libraries/EEPROM/src",
@@ -253,6 +253,7 @@
                 "path": [
                     "/home/hamzah/develop/Sentra/src",
                     "/home/hamzah/.platformio/packages/framework-arduinoespressif32/libraries/Preferences/src",
+                    "/home/hamzah/.platformio/packages/framework-arduinoespressif32/libraries/BLE/src",
                     "/home/hamzah/develop/Sentra/.pio/libdeps/esp32dev/Adafruit SSD1306",
                     "/home/hamzah/develop/Sentra/.pio/libdeps/esp32dev/Adafruit GFX Library",
                     "/home/hamzah/develop/Sentra/.pio/libdeps/esp32dev/Adafruit BusIO",
@@ -468,7 +469,6 @@
                     "/home/hamzah/.platformio/packages/framework-arduinoespressif32/variants/esp32",
                     "/home/hamzah/.platformio/packages/framework-arduinoespressif32/libraries/ArduinoOTA/src",
                     "/home/hamzah/.platformio/packages/framework-arduinoespressif32/libraries/AsyncUDP/src",
-                    "/home/hamzah/.platformio/packages/framework-arduinoespressif32/libraries/BLE/src",
                     "/home/hamzah/.platformio/packages/framework-arduinoespressif32/libraries/BluetoothSerial/src",
                     "/home/hamzah/.platformio/packages/framework-arduinoespressif32/libraries/DNSServer/src",
                     "/home/hamzah/.platformio/packages/framework-arduinoespressif32/libraries/EEPROM/src",

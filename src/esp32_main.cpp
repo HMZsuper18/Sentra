@@ -34,6 +34,8 @@ bool bootDone = false;
 String lastLcdMsg_local = "";
 unsigned long lastOledUpdate = 0;
 const unsigned long OLED_UPDATE_INTERVAL = 500;
+unsigned long lastWifiCheck = 0;
+const unsigned long WIFI_CHECK_INTERVAL = 5000;
 
 extern bool oledReady;
 
@@ -146,6 +148,19 @@ void loop() {
     if (now - lastOledUpdate >= OLED_UPDATE_INTERVAL) {
         lastOledUpdate = now;
         refreshOLED();
+    }
+
+    if (now - lastWifiCheck >= WIFI_CHECK_INTERVAL) {
+        lastWifiCheck = now;
+        if (WiFi.status() != WL_CONNECTED) {
+            Serial.println("WiFi lost, reconnecting...");
+            pushLCD("WiFi Lost");
+            digitalWrite(2, LOW);
+            currentErrors = "E006";
+            connectToWifi();
+        } else if (currentErrors == "E006") {
+            currentErrors = "";
+        }
     }
 
     if (now - lastPoll < POLL_INTERVAL) return;

@@ -27,20 +27,57 @@ class ManualControlsWidget extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 10),
-        SizedBox(
-          width: double.infinity,
-          child: _buildButton('وقف', '■', fullWidth: true),
-        ),
+        Center(child: _buildStopButton()),
       ],
     ),
   );
 
-  Widget _buildButton(String label, String icon, {bool fullWidth = false}) {
+  Widget _buildStopButton() {
+    return GestureDetector(
+      onTap: () => onCommand('وقف'),
+      child: Container(
+        width: 60,
+        height: 60,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: const Color(0xFFef4444).withValues(alpha: 0.2),
+          border: Border.all(
+            color: const Color(0xFFef4444).withValues(alpha: 0.5),
+            width: 2,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: const Color(0xFFef4444).withValues(alpha: 0.3),
+              blurRadius: 12,
+              spreadRadius: 2,
+            ),
+          ],
+        ),
+        child: const Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.stop, color: Color(0xFFef4444), size: 22),
+            SizedBox(height: 2),
+            Text(
+              'وقف',
+              style: TextStyle(
+                color: Color(0xFFef4444),
+                fontSize: 9,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildButton(String label, String icon) {
     return GestureDetector(
       onTap: () => onCommand(label),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 150),
-        width: fullWidth ? double.infinity : 68,
+        width: 68,
         padding: const EdgeInsets.symmetric(vertical: 12),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(10),

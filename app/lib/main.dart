@@ -7,11 +7,8 @@ import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'core/constants.dart';
 import 'models/particle.dart';
 import 'services/firebase_service.dart';
-import 'services/speech_service.dart';
 import 'services/ble_service.dart';
 import 'widgets/glass_card.dart';
-import 'widgets/mic_widget.dart';
-import 'widgets/waveform_widget.dart';
 import 'widgets/robot_map_widget.dart';
 import 'widgets/manual_controls.dart';
 import 'widgets/wifi_sidebar.dart';
@@ -50,7 +47,6 @@ class _SentraHomeState extends State<SentraHome> with TickerProviderStateMixin {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   final _bleService = BLEService();
-  final _speechService = SpeechService();
 
   BluetoothDevice? get _connectedDevice => _bleService.connectedDevice;
   bool get _bleScanning => _bleService.scanning;
@@ -62,23 +58,13 @@ class _SentraHomeState extends State<SentraHome> with TickerProviderStateMixin {
   bool _debugExpanded = false;
   final List<String> _debugLogs = [];
 
-  bool _isSpeaking = false;
-  String _transcript = '...';
-  String _keyword = 'تحدث';
-  bool _denied = false;
-  String _lastCommand = 'وقف';
+  String _lastCommand = '...';
   List<String> _motorStates = ['idle', 'idle', 'idle', 'idle'];
 
   StreamSubscription<String>? _fbSub;
 
   late AnimationController _popCtrl;
-  late Animation<double> _popScale, _popOpacity;
   late List<AnimationController> _orbCtrl;
-  late List<AnimationController> _waveCtrl;
-  late List<AnimationController> _rippleCtrl;
-  late List<Animation<double>> _rippleScale, _rippleOpacity;
-  late AnimationController _speakPulseCtrl;
-  late Animation<double> _speakPulse;
   late List<AnimationController> _particleCtrl;
   late List<Particle> _particles;
   late AnimationController _lcdBlinkCtrl;
@@ -87,7 +73,6 @@ class _SentraHomeState extends State<SentraHome> with TickerProviderStateMixin {
   void initState() {
     super.initState();
     _initAnimations();
-    _initSpeech();
     _startFirebaseStream();
     _initBLE();
   }
@@ -136,8 +121,9 @@ class _SentraHomeState extends State<SentraHome> with TickerProviderStateMixin {
           word = inner is Map ? inner['word']?.toString() : null;
         }
         if (word != null && mounted) {
+          final cmd = word;
           setState(() {
-            _lastCommand = word!;
+            _lastCommand = cmd;
           });
         }
       } catch (_) {}
@@ -149,14 +135,6 @@ class _SentraHomeState extends State<SentraHome> with TickerProviderStateMixin {
       vsync: this,
       duration: const Duration(milliseconds: 450),
     );
-    _popScale = Tween<double>(
-      begin: 0.6,
-      end: 1.0,
-    ).animate(CurvedAnimation(parent: _popCtrl, curve: Curves.elasticOut));
-    _popOpacity = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(parent: _popCtrl, curve: Curves.easeOut));
     _popCtrl.value = 1.0;
 
     _orbCtrl = List.generate(
@@ -165,52 +143,6 @@ class _SentraHomeState extends State<SentraHome> with TickerProviderStateMixin {
         vsync: this,
         duration: Duration(milliseconds: [8000, 10500, 12000, 9200][i]),
       )..repeat(reverse: true),
-    );
-
-    _waveCtrl = List.generate(10, (i) {
-      final c = AnimationController(
-        vsync: this,
-        duration: Duration(milliseconds: 900 + i * 70),
-      )..repeat(reverse: true);
-      Future.delayed(Duration(milliseconds: i * 90), () {
-        if (mounted) c.forward();
-      });
-      return c;
-    });
-
-    _rippleCtrl = List.generate(3, (i) {
-      final c = AnimationController(
-        vsync: this,
-        duration: const Duration(milliseconds: 2200),
-      )..repeat();
-      Future.delayed(Duration(milliseconds: i * 700), () {
-        if (mounted) c.forward();
-      });
-      return c;
-    });
-    _rippleScale = _rippleCtrl
-        .map(
-          (c) => Tween<double>(
-            begin: 1.0,
-            end: 2.8,
-          ).animate(CurvedAnimation(parent: c, curve: Curves.easeOut)),
-        )
-        .toList();
-    _rippleOpacity = _rippleCtrl
-        .map(
-          (c) => Tween<double>(
-            begin: 0.8,
-            end: 0.0,
-          ).animate(CurvedAnimation(parent: c, curve: Curves.easeOut)),
-        )
-        .toList();
-
-    _speakPulseCtrl = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 550),
-    );
-    _speakPulse = Tween<double>(begin: 1.0, end: 1.38).animate(
-      CurvedAnimation(parent: _speakPulseCtrl, curve: Curves.easeInOut),
     );
 
     _lcdBlinkCtrl = AnimationController(
@@ -232,68 +164,17 @@ class _SentraHomeState extends State<SentraHome> with TickerProviderStateMixin {
     });
   }
 
-  Future<void> _initSpeech() async {
-    _speechService.onSpeaking = (speaking) {
-      if (mounted) {
-        setState(() => _isSpeaking = speaking);
-        speaking
-            ? _speakPulseCtrl.repeat(reverse: true)
-            : (_speakPulseCtrl
-                ..stop()
-                ..reset());
-      }
-    };
-    _speechService.onKeyword = (keyword) {
-      if (mounted) setState(() => _keyword = keyword);
-    };
-    _speechService.onTranscript = (words) {
-      if (mounted) setState(() => _transcript = words);
-    };
-    _speechService.onPopAnimation = () => _popCtrl.forward(from: 0);
-    _speechService.onSend = (keyword) => sendToFirebase(keyword);
-    _speechService.onStart = _startListening;
-    _speechService.onError = () {
-      if (mounted) {
-        setState(() {
-          _denied = true;
-          _isSpeaking = false;
-        });
-        _speakPulseCtrl.stop();
-        _speakPulseCtrl.reset();
-      }
-    };
-
-    final available = await _speechService.init();
-    if (available) {
-      _startListening();
-    } else if (mounted) {
-      setState(() => _denied = true);
-    }
-  }
-
-  void _startListening() {
-    _speechService.start();
-  }
-
   @override
   void dispose() {
     _fbSub?.cancel();
     _popCtrl.dispose();
-    _speakPulseCtrl.dispose();
     _lcdBlinkCtrl.dispose();
     for (final c in _orbCtrl) {
-        c.dispose();
-      }
-      for (final c in _waveCtrl) {
-        c.dispose();
-      }
-      for (final c in _rippleCtrl) {
-        c.dispose();
-      }
-      for (final c in _particleCtrl) {
-        c.dispose();
-      }
-    _speechService.stop();
+      c.dispose();
+    }
+    for (final c in _particleCtrl) {
+      c.dispose();
+    }
     super.dispose();
   }
 
@@ -382,29 +263,13 @@ class _SentraHomeState extends State<SentraHome> with TickerProviderStateMixin {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            MicWidget(
-              pulseCtrl: _speakPulseCtrl,
-              pulseAnim: _speakPulse,
-              rippleCtrl: _rippleCtrl[0],
-              rippleScale: _rippleScale,
-              rippleOpacity: _rippleOpacity,
-              isSpeaking: _isSpeaking,
-              speakPulseCtrl: _speakPulseCtrl,
-            ),
-            const SizedBox(height: 22),
-            _buildLabel('تعرف على الكلام'),
-            const SizedBox(height: 8),
-            _buildTranscriptBox(),
-            const SizedBox(height: 10),
-            _buildWordBox(),
-            const SizedBox(height: 14),
-            WaveformWidget(waveCtrl: _waveCtrl, isSpeaking: _isSpeaking),
+            _buildCommandBadge(),
+            const SizedBox(height: 16),
+            ManualControlsWidget(onCommand: _sendCommand),
           ],
         ),
       ),
       const SizedBox(height: 16),
-      ManualControlsWidget(onCommand: _sendCommand),
-      const SizedBox(height: 20),
       RobotMapWidget(
         lastCommand: _lastCommand,
         motorStates: _motorStates,
@@ -419,29 +284,20 @@ class _SentraHomeState extends State<SentraHome> with TickerProviderStateMixin {
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
       Expanded(
-        child: GlassCard(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              MicWidget(
-                pulseCtrl: _speakPulseCtrl,
-                pulseAnim: _speakPulse,
-                rippleCtrl: _rippleCtrl[0],
-                rippleScale: _rippleScale,
-                rippleOpacity: _rippleOpacity,
-                isSpeaking: _isSpeaking,
-                speakPulseCtrl: _speakPulseCtrl,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            GlassCard(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  _buildCommandBadge(),
+                  const SizedBox(height: 16),
+                  ManualControlsWidget(onCommand: _sendCommand),
+                ],
               ),
-              const SizedBox(height: 14),
-              WaveformWidget(waveCtrl: _waveCtrl, isSpeaking: _isSpeaking),
-              const SizedBox(height: 10),
-              _buildLabel('تعرف على الكلام'),
-              const SizedBox(height: 8),
-              _buildTranscriptBox(),
-              const SizedBox(height: 10),
-              _buildWordBox(),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
       const SizedBox(width: 20),
@@ -455,8 +311,6 @@ class _SentraHomeState extends State<SentraHome> with TickerProviderStateMixin {
               lcdCtrl: _lcdBlinkCtrl,
             ),
             const SizedBox(height: 12),
-            ManualControlsWidget(onCommand: _sendCommand),
-            const SizedBox(height: 12),
             _buildLegend(),
           ],
         ),
@@ -464,75 +318,34 @@ class _SentraHomeState extends State<SentraHome> with TickerProviderStateMixin {
     ],
   );
 
-  Widget _buildLabel(String text) => Text(
-    text,
-    style: TextStyle(
-      fontSize: 13,
-      fontWeight: FontWeight.w300,
-      letterSpacing: 2,
-      color: Colors.white.withValues(alpha: 0.45),
-    ),
-    textAlign: TextAlign.center,
-  );
-
-  Widget _buildTranscriptBox() => Container(
+  Widget _buildCommandBadge() => Container(
     width: double.infinity,
-    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+    padding: const EdgeInsets.all(14),
     decoration: BoxDecoration(
       borderRadius: BorderRadius.circular(14),
-      color: Colors.white.withValues(alpha: 0.03),
-      border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
-    ),
-    child: Text(
-      _transcript,
-      style: TextStyle(
-        fontSize: 13,
-        color: Colors.white.withValues(alpha: 0.38),
-        fontWeight: FontWeight.w300,
-        letterSpacing: 0.5,
-      ),
-      textAlign: TextAlign.center,
-    ),
-  );
-
-  Widget _buildWordBox() => Container(
-    width: double.infinity,
-    padding: const EdgeInsets.all(18),
-    constraints: const BoxConstraints(minHeight: 72),
-    decoration: BoxDecoration(
-      borderRadius: BorderRadius.circular(18),
       color: Colors.white.withValues(alpha: 0.05),
       border: Border.all(color: Colors.white.withValues(alpha: 0.12)),
-      boxShadow: [
-        BoxShadow(
-          color: Colors.black.withValues(alpha: 0.2),
-          blurRadius: 8,
-          offset: const Offset(0, 2),
+    ),
+    child: Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Icon(Icons.sensors, color: c2.withValues(alpha: 0.7), size: 18),
+        const SizedBox(width: 10),
+        Text(
+          _lastCommand,
+          style: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+            letterSpacing: 2,
+            shadows: [
+              Shadow(color: c1.withValues(alpha: 0.8), blurRadius: 20),
+              Shadow(color: c2.withValues(alpha: 0.4), blurRadius: 40),
+            ],
+          ),
+          textAlign: TextAlign.center,
         ),
       ],
-    ),
-    child: AnimatedBuilder(
-      animation: _popCtrl,
-      builder: (_, _) => Transform.scale(
-        scale: _popScale.value,
-        child: Opacity(
-          opacity: _popOpacity.value,
-          child: Text(
-            _denied ? 'تم الرفض' : _keyword,
-            style: TextStyle(
-              fontSize: _denied ? 18 : 28,
-              fontWeight: FontWeight.bold,
-              color: _denied ? c3.withValues(alpha: 0.9) : Colors.white,
-              letterSpacing: 2,
-              shadows: [
-                Shadow(color: c1.withValues(alpha: 0.8), blurRadius: 20),
-                Shadow(color: c2.withValues(alpha: 0.4), blurRadius: 40),
-              ],
-            ),
-            textAlign: TextAlign.center,
-          ),
-        ),
-      ),
     ),
   );
 
@@ -607,11 +420,9 @@ class _SentraHomeState extends State<SentraHome> with TickerProviderStateMixin {
   void _sendCommand(String command) {
     sendToFirebase(command);
     setState(() {
-      _keyword = command;
-      _transcript = '[$command]';
+      _lastCommand = command;
       _updateLocalMotorState(command);
     });
-    _popCtrl.forward(from: 0);
   }
 
   void _updateLocalMotorState(String command) {
@@ -619,41 +430,29 @@ class _SentraHomeState extends State<SentraHome> with TickerProviderStateMixin {
       case 'قدام':
         _motorStates = ['forward', 'forward', 'forward', 'forward'];
         Future.delayed(const Duration(seconds: 2), () {
-          if (mounted) {
-            setState(() {
-              _motorStates = ['idle', 'idle', 'idle', 'idle'];
-            });
-          }
+          if (mounted)
+            setState(() => _motorStates = ['idle', 'idle', 'idle', 'idle']);
         });
         break;
       case 'ورا':
         _motorStates = ['backward', 'backward', 'backward', 'backward'];
         Future.delayed(const Duration(seconds: 2), () {
-          if (mounted) {
-            setState(() {
-              _motorStates = ['idle', 'idle', 'idle', 'idle'];
-            });
-          }
+          if (mounted)
+            setState(() => _motorStates = ['idle', 'idle', 'idle', 'idle']);
         });
         break;
       case 'يمين':
         _motorStates = ['forward', 'forward', 'backward', 'backward'];
         Future.delayed(const Duration(seconds: 1), () {
-          if (mounted) {
-            setState(() {
-              _motorStates = ['idle', 'idle', 'idle', 'idle'];
-            });
-          }
+          if (mounted)
+            setState(() => _motorStates = ['idle', 'idle', 'idle', 'idle']);
         });
         break;
       case 'شمال':
         _motorStates = ['backward', 'backward', 'forward', 'forward'];
         Future.delayed(const Duration(seconds: 1), () {
-          if (mounted) {
-            setState(() {
-              _motorStates = ['idle', 'idle', 'idle', 'idle'];
-            });
-          }
+          if (mounted)
+            setState(() => _motorStates = ['idle', 'idle', 'idle', 'idle']);
         });
         break;
       case 'وقف':
