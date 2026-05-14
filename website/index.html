@@ -3,324 +3,216 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sentra - التحكم الصوتي</title>
-  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;700&display=swap" rel="stylesheet">
+  <title>Sentra — روبوت ذكي متعدد الوظائف</title>
+  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;700;900&display=swap" rel="stylesheet">
   <style>
     :root {
-      --glass-bg: rgba(255,255,255,0.08);
-      --glass-border: rgba(255,255,255,0.25);
-      --glass-shine: rgba(255,255,255,0.5);
-      --glass-shadow: rgba(0,0,0,0.3);
       --accent-1: #a78bfa;
       --accent-2: #38bdf8;
       --accent-3: #f472b6;
+      --accent-4: #34d399;
+      --bg: #0a0a1a;
+      --card-bg: rgba(255,255,255,0.05);
     }
     *{margin:0;padding:0;box-sizing:border-box}
-    body{min-height:100vh;display:flex;justify-content:center;align-items:center;background:#0a0a1a;font-family:'Tajawal',sans-serif;overflow:hidden;position:relative}
-    .orb{position:fixed;border-radius:50%;filter:blur(80px);animation:float 8s ease-in-out infinite;pointer-events:none;z-index:0}
-    .orb-1{width:500px;height:500px;background:radial-gradient(circle,rgba(167,139,250,.5),transparent 70%);top:-150px;left:-150px}
-    .orb-2{width:400px;height:400px;background:radial-gradient(circle,rgba(56,189,248,.45),transparent 70%);bottom:-100px;right:-100px;animation-delay:-3s;animation-duration:10s}
-    .orb-3{width:300px;height:300px;background:radial-gradient(circle,rgba(244,114,182,.4),transparent 70%);bottom:100px;left:50px;animation-delay:-6s;animation-duration:12s}
-    .orb-4{width:250px;height:250px;background:radial-gradient(circle,rgba(52,211,153,.3),transparent 70%);top:100px;right:80px;animation-delay:-2s;animation-duration:9s}
-    @keyframes float{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(30px,-30px) scale(1.05)}66%{transform:translate(-20px,20px) scale(.97)}}
-    body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");opacity:.4;z-index:1;pointer-events:none}
-    .glass-card{position:relative;z-index:10;width:340px;padding:40px 36px 36px;border-radius:28px;background:var(--glass-bg);backdrop-filter:blur(40px) saturate(180%);-webkit-backdrop-filter:blur(40px) saturate(180%);border:1px solid var(--glass-border);box-shadow:0 8px 32px var(--glass-shadow),inset 0 1px 0 var(--glass-shine),inset 0 -1px 0 rgba(255,255,255,.05);animation:cardIn .8s cubic-bezier(.34,1.56,.64,1) forwards}
-    @keyframes cardIn{from{opacity:0;transform:translateY(40px) scale(.92)}to{opacity:1;transform:translateY(0) scale(1)}}
-    .glass-card::before{content:'';position:absolute;inset:0;border-radius:28px;background:linear-gradient(135deg,rgba(255,255,255,.15) 0%,rgba(255,255,255,.03) 40%,transparent 60%,rgba(255,255,255,.05) 100%);pointer-events:none}
-    .glass-card::after{content:'';position:absolute;inset:-1px;border-radius:29px;background:linear-gradient(135deg,rgba(167,139,250,.4),rgba(56,189,248,.2),rgba(244,114,182,.3));z-index:-1;filter:blur(1px)}
-    .mic-wrap{position:relative;display:flex;justify-content:center;align-items:center;margin-bottom:24px}
-    .ripple-ring{position:absolute;width:80px;height:80px;border-radius:50%;border:2px solid rgba(167,139,250,.5);animation:ripple 2s ease-out infinite}
-    .ripple-ring:nth-child(2){animation-delay:.6s;border-color:rgba(56,189,248,.4)}
-    .ripple-ring:nth-child(3){animation-delay:1.2s;border-color:rgba(244,114,182,.3)}
-    @keyframes ripple{0%{transform:scale(1);opacity:.8}100%{transform:scale(2.8);opacity:0}}
-    .mic-btn{position:relative;z-index:2;width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,rgba(167,139,250,.35),rgba(56,189,248,.25));border:1px solid rgba(255,255,255,.3);backdrop-filter:blur(10px);box-shadow:0 4px 20px rgba(167,139,250,.4),inset 0 1px 0 rgba(255,255,255,.4);display:flex;justify-content:center;align-items:center;transition:transform .2s ease,box-shadow .2s ease}
-    .mic-btn:hover{transform:scale(1.05);box-shadow:0 6px 28px rgba(167,139,250,.6),inset 0 1px 0 rgba(255,255,255,.4)}
-    .mic-btn svg{width:30px;height:30px;fill:#fff;filter:drop-shadow(0 0 8px rgba(255,255,255,.6))}
-    .title{font-size:13px;font-weight:300;letter-spacing:2px;color:rgba(255,255,255,.45);text-align:center;margin-bottom:6px;text-transform:uppercase}
-    .transcript-glass{margin-top:8px;padding:10px 14px;border-radius:14px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);min-height:40px;display:flex;align-items:center;justify-content:center}
-    #transcript{font-size:13px;color:rgba(255,255,255,.35);text-align:center;font-weight:300;letter-spacing:.5px;word-break:break-word}
-    .word-glass{margin-top:10px;padding:18px 20px;border-radius:18px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);box-shadow:inset 0 2px 8px rgba(0,0,0,.2),inset 0 1px 0 rgba(255,255,255,.1);min-height:72px;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}
-    .word-glass::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.3),transparent)}
-    #h{font-size:28px;font-weight:700;color:#fff;text-align:center;text-shadow:0 0 20px rgba(167,139,250,.8),0 0 40px rgba(56,189,248,.4);transition:all .3s cubic-bezier(.34,1.56,.64,1);letter-spacing:2px}
-    #h.pop{animation:wordPop .4s cubic-bezier(.34,1.56,.64,1)}
-    @keyframes wordPop{0%{transform:scale(.7);opacity:0;filter:blur(8px)}100%{transform:scale(1);opacity:1;filter:blur(0)}}
-    .status-bar{display:flex;align-items:center;justify-content:center;gap:8px;margin-top:20px}
-    .dot{width:7px;height:7px;border-radius:50%;background:var(--accent-1);box-shadow:0 0 8px var(--accent-1);animation:pulse-dot 1.4s ease-in-out infinite}
-    .dot:nth-child(2){background:var(--accent-2);box-shadow:0 0 8px var(--accent-2);animation-delay:.2s}
-    .dot:nth-child(3){background:var(--accent-3);box-shadow:0 0 8px var(--accent-3);animation-delay:.4s}
-    @keyframes pulse-dot{0%,100%{transform:scale(1);opacity:.6}50%{transform:scale(1.5);opacity:1}}
-    .status-text{font-size:11px;color:rgba(255,255,255,.35);letter-spacing:1.5px}
-    #h.denied{color:rgba(244,114,182,.9);text-shadow:0 0 20px rgba(244,114,182,.5);font-size:16px}
-     .waveform{display:flex;align-items:center;justify-content:center;gap:4px;height:28px;margin-top:16px}
-     .bar{width:3px;border-radius:2px;background:linear-gradient(to top,var(--accent-2),var(--accent-1));animation:wave 1.2s ease-in-out infinite;box-shadow:0 0 6px rgba(167,139,250,.5)}
-     .bar:nth-child(1){height:14px;animation-delay:0s}.bar:nth-child(2){height:22px;animation-delay:.1s}.bar:nth-child(3){height:18px;animation-delay:.2s}.bar:nth-child(4){height:26px;animation-delay:.3s}.bar:nth-child(5){height:20px;animation-delay:.4s}.bar:nth-child(6){height:28px;animation-delay:.5s}.bar:nth-child(7){height:16px;animation-delay:.6s}.bar:nth-child(8){height:24px;animation-delay:.7s}.bar:nth-child(9){height:18px;animation-delay:.8s}.bar:nth-child(10){height:12px;animation-delay:.9s}
-     @keyframes wave{0%,100%{transform:scaleY(.4);opacity:.5}50%{transform:scaleY(1);opacity:1}}
-     
-     .status-panel{background:rgba(255,255,255,.03);border-radius:14px;padding:16px;border:1px solid rgba(255,255,255,.08);margin-top:20px}
-     .status-item{display:flex;justify-content:space-between;margin-bottom:8px;font-size:13px;color:rgba(255,255,255,.35)}
-     .status-label{font-weight:300}
-     .status-value{font-weight:500;color:rgba(255,255,255,.7)}
-     .motor-dot{width:10px;height:10px;border-radius:50%;background:rgba(255,255,255,.2)}
-     .motor-dot.active{background:var(--accent-2);box-shadow:0 0 8px var(--accent-2)}
-     
-     .manual-controls{background:rgba(255,255,255,.03);border-radius:14px;padding:16px;border:1px solid rgba(255,255,255,.08)}
-     .control-btn{
-       background:rgba(255,255,255,.08);
-       border:1px solid rgba(255,255,255,.2);
-       color:white;
-       padding:12px;
-       border-radius:10px;
-       cursor:pointer;
-       transition:all .2s ease;
-       font-family:'Tajawal',sans-serif;
-       font-size:13px;
-     }
-     .control-btn:hover{
-       background:rgba(255,255,255,.15);
-       transform:translateY(-2px);
-       box-shadow:0 4px 12px rgba(167,139,250,.3);
-     }
-     .control-btn:active{
-       transform:scale(0.95);
-     }
+    html{scroll-behavior:smooth}
+    body{background:var(--bg);color:#fff;font-family:'Tajawal',sans-serif;overflow-x:hidden;line-height:1.7}
+    .orb{position:fixed;border-radius:50%;filter:blur(100px);pointer-events:none;z-index:0}
+    .orb-1{width:600px;height:600px;background:radial-gradient(circle,rgba(167,139,250,.25),transparent 70%);top:-200px;left:-200px;animation:float 10s ease-in-out infinite}
+    .orb-2{width:500px;height:500px;background:radial-gradient(circle,rgba(56,189,248,.2),transparent 70%);bottom:-150px;right:-150px;animation:float 12s ease-in-out infinite reverse}
+    .orb-3{width:350px;height:350px;background:radial-gradient(circle,rgba(244,114,182,.15),transparent 70%);top:50%;left:30%;animation:float 8s ease-in-out infinite 2s}
+    @keyframes float{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(40px,-40px) scale(1.05)}66%{transform:translate(-30px,30px) scale(.95)}}
+    
+    nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:16px 40px;display:flex;justify-content:space-between;align-items:center;background:rgba(10,10,26,.8);backdrop-filter:blur(20px);border-bottom:1px solid rgba(255,255,255,.06)}
+    .nav-logo{font-size:22px;font-weight:900;background:linear-gradient(135deg,var(--accent-1),var(--accent-2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:1px}
+    .nav-links{display:flex;gap:24px;align-items:center}
+    .nav-links a{color:rgba(255,255,255,.6);text-decoration:none;font-size:14px;transition:color .2s}
+    .nav-links a:hover{color:#fff}
+    .nav-links .btn{background:linear-gradient(135deg,var(--accent-1),var(--accent-2));color:#fff!important;padding:8px 20px;border-radius:10px;font-weight:700;font-size:13px}
+    
+    section{padding:100px 40px;position:relative;z-index:10;max-width:1100px;margin:0 auto}
+    .hero{min-height:100vh;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding-top:120px}
+    .hero-badge{display:inline-block;padding:6px 16px;border-radius:20px;background:rgba(167,139,250,.15);border:1px solid rgba(167,139,250,.3);color:var(--accent-1);font-size:13px;font-weight:700;letter-spacing:1px;margin-bottom:24px}
+    .hero h1{font-size:clamp(40px,8vw,80px);font-weight:900;line-height:1.1;margin-bottom:16px;background:linear-gradient(135deg,var(--accent-1),var(--accent-2),var(--accent-3));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+    .hero p{font-size:clamp(16px,2vw,22px);color:rgba(255,255,255,.5);max-width:600px;margin-bottom:40px;font-weight:300}
+    .hero-btns{display:flex;gap:16px;flex-wrap:wrap;justify-content:center}
+    .btn-primary{background:linear-gradient(135deg,var(--accent-1),var(--accent-2));color:#fff;padding:14px 36px;border-radius:14px;text-decoration:none;font-weight:700;font-size:15px;transition:transform .2s,box-shadow .2s}
+    .btn-primary:hover{transform:translateY(-3px);box-shadow:0 8px 30px rgba(167,139,250,.4)}
+    .btn-secondary{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.2);color:#fff;padding:14px 36px;border-radius:14px;text-decoration:none;font-weight:500;font-size:15px;transition:transform .2s}
+    .btn-secondary:hover{transform:translateY(-3px);background:rgba(255,255,255,.12)}
+    .btn-ghost{color:rgba(255,255,255,.6);padding:14px 36px;border-radius:14px;text-decoration:none;font-weight:500;font-size:15px;transition:color .2s}
+    .btn-ghost:hover{color:#fff}
+
+    .section-title{font-size:clamp(28px,4vw,42px);font-weight:900;margin-bottom:16px;text-align:center}
+    .section-sub{color:rgba(255,255,255,.45);text-align:center;max-width:600px;margin:0 auto 60px;font-weight:300;font-size:16px}
+
+    .specs-grid{display:flex;flex-direction:column;gap:20px}
+    .spec-card{background:var(--card-bg);border:1px solid rgba(255,255,255,.08);border-radius:20px;padding:32px;transition:transform .3s,border-color .3s}
+    .spec-card:hover{transform:translateY(-4px);border-color:rgba(167,139,250,.3)}
+    .spec-card .icon{font-size:32px;margin-bottom:16px}
+    .spec-card h3{font-size:18px;font-weight:700;margin-bottom:8px}
+    .spec-card p{color:rgba(255,255,255,.5);font-size:14px;font-weight:300}
+
+    .feature-list{display:flex;flex-direction:column;gap:16px}
+    .feature-item{background:var(--card-bg);border:1px solid rgba(255,255,255,.06);border-radius:14px;padding:20px;display:flex;align-items:center;gap:14px;transition:background .2s}
+    .feature-item:hover{background:rgba(255,255,255,.08)}
+    .feature-item .check{width:28px;height:28px;border-radius:50%;background:rgba(52,211,153,.2);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--accent-4);font-size:14px}
+    .feature-item span{font-size:14px;font-weight:500}
+
+    .spec-table{width:100%;border-collapse:separate;border-spacing:0 8px}
+    .spec-table td{padding:14px 20px;background:var(--card-bg);border:1px solid rgba(255,255,255,.06)}
+    .spec-table td:first-child{border-radius:12px 0 0 12px;color:rgba(255,255,255,.5);font-weight:300;width:40%;font-size:14px}
+    .spec-table td:last-child{border-radius:0 12px 12px 0;color:#fff;font-weight:500;font-size:14px}
+
+    .pin-table{width:100%;border-collapse:separate;border-spacing:0 6px}
+    .pin-table th{padding:12px 16px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);color:rgba(255,255,255,.6);font-weight:500;font-size:13px}
+    .pin-table th:first-child{border-radius:10px 0 0 10px}
+    .pin-table th:last-child{border-radius:0 10px 10px 0}
+    .pin-table td{padding:12px 16px;background:var(--card-bg);border:1px solid rgba(255,255,255,.06);font-size:14px}
+    .pin-table td:first-child{border-radius:10px 0 0 10px;font-family:monospace;color:var(--accent-2)}
+    .pin-table td:last-child{border-radius:0 10px 10px 0}
+
+    .cta-section{text-align:center;padding:80px 40px}
+    .cta-section h2{font-size:clamp(28px,4vw,42px);font-weight:900;margin-bottom:16px}
+    .cta-section p{color:rgba(255,255,255,.5);max-width:500px;margin:0 auto 32px;font-size:16px}
+    .download-btns{display:flex;gap:16px;justify-content:center;flex-wrap:wrap}
+
+    footer{text-align:center;padding:40px;border-top:1px solid rgba(255,255,255,.06);color:rgba(255,255,255,.3);font-size:13px;position:relative;z-index:10}
+    footer a{color:rgba(255,255,255,.5);text-decoration:none}
+    footer a:hover{color:#fff}
+
+    @media(max-width:768px){
+      nav{padding:12px 20px}
+      .nav-links a{font-size:12px}
+      section{padding:60px 20px}
+      .specs-grid{grid-template-columns:1fr}
+      .feature-list{grid-template-columns:1fr}
+    }
+
+    .arch-diagram{display:flex;flex-direction:column;align-items:center;gap:12px;padding:30px;background:var(--card-bg);border-radius:20px;border:1px solid rgba(255,255,255,.08);margin-bottom:40px}
+    .arch-box{padding:20px 28px;border-radius:14px;text-align:center;min-width:140px}
+    .arch-box.app{background:linear-gradient(135deg,rgba(167,139,250,.2),rgba(167,139,250,.05));border:1px solid rgba(167,139,250,.3)}
+    .arch-box.esp{background:linear-gradient(135deg,rgba(56,189,248,.2),rgba(56,189,248,.05));border:1px solid rgba(56,189,248,.3)}
+    .arch-box.web{background:linear-gradient(135deg,rgba(52,211,153,.2),rgba(52,211,153,.05));border:1px solid rgba(52,211,153,.3)}
+    .arch-box .label{font-size:13px;color:rgba(255,255,255,.5);margin-top:6px}
+    .arch-box .name{font-size:16px;font-weight:700}
+    .arch-arrow{color:rgba(255,255,255,.3);font-size:24px}
+
+    .cmd-table{width:100%;border-collapse:separate;border-spacing:0 6px;margin:20px 0}
+    .cmd-table th{padding:12px 16px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);color:rgba(255,255,255,.6);font-weight:500;font-size:13px}
+    .cmd-table th:first-child{border-radius:10px 0 0 10px}
+    .cmd-table th:last-child{border-radius:0 10px 10px 0}
+    .cmd-table td{padding:12px 16px;background:var(--card-bg);border:1px solid rgba(255,255,255,.06);font-size:14px}
+    .cmd-table td:first-child{border-radius:10px 0 0 10px;font-weight:700}
+    .cmd-table td:last-child{border-radius:0 10px 10px 0;color:rgba(255,255,255,.6)}
   </style>
 </head>
 <body>
   <div class="orb orb-1"></div>
   <div class="orb orb-2"></div>
   <div class="orb orb-3"></div>
-  <div class="orb orb-4"></div>
 
-  <div class="glass-card">
-    <div class="mic-wrap">
-      <div class="ripple-ring"></div>
-      <div class="ripple-ring"></div>
-      <div class="ripple-ring"></div>
-      <div class="mic-btn">
-        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-          <path d="M12 15a4 4 0 0 0 4-4V6a4 4 0 0 0-8 0v5a4 4 0 0 0 4 4zm-1 2.93A7.001 7.001 0 0 1 5 11H3a9 9 0 0 0 8 8.94V22h2v-2.06A9 9 0 0 0 21 11h-2a7 7 0 0 1-6 6.93z"/>
-        </svg>
-      </div>
+
+  <section class="hero">
+    <div class="hero-badge">🤖 ESP32 + Flutter + Firebase</div>
+    <h1>روبوت<br>متعدد الوظائف</h1>
+    <p>منصة روبوتات متقدمة تعتمد على ESP32 مع تحكم هجين عبر Firebase و BLE، وتطبيق Flutter حديث، ونظام طاقة عالي الأداء.</p>
+    <div class="hero-btns">
+      <a href="#download" class="btn-primary">📲 تحميل التطبيق</a>
+      <a href="https://github.com/HMZsuper18/Sentra" target="_blank" class="btn-secondary"> GitHub</a>
+      <a href="#specs" class="btn-ghost">↓ اعرف المزيد</a>
+    </div>
+  </section>
+
+  <section id="specs">
+    <h2 class="section-title">المواصفات الفنية</h2>
+    <p class="section-sub">نظرة تفصيلية على مكونات النظام وهندسة التحكم</p>
+
+    <div class="arch-diagram">
+      <div class="arch-box app"><div class="name">📱 Flutter App</div><div class="label">Voice + BLE + Firebase</div></div>
+      <div class="arch-arrow" style="transform:rotate(90deg)">⬌</div>
+      <div class="arch-box esp"><div class="name">⚙️ ESP32</div><div class="label">BLE + WiFi + Motors</div></div>
+      <div class="arch-arrow" style="transform:rotate(90deg)">⬌</div>
+      <div class="arch-box web"><div class="name">🌐 Dashboard</div><div class="label">Firebase Hosting</div></div>
     </div>
 
-    <p class="title">تعرف على الكلام</p>
+    <h3 style="font-size:20px;font-weight:700;margin:40px 0 20px">🧠 نظام التحكم والمنطق</h3>
+    <table class="spec-table">
+      <tr><td>المتحكم الدقيق</td><td>ESP32 DevKit V1 — معالج ثنائي النواة يدير التحكم الهجين (Firebase RTDB + BLE)</td></tr>
+      <tr><td>الشاشة</td><td>0.96" OLED (SSD1306) — مراقبة فورية للحالة عبر I2C</td></tr>
+    </table>
 
-    <div class="transcript-glass">
-      <p id="transcript">...</p>
+    <h3 style="font-size:20px;font-weight:700;margin:40px 0 20px">⚡ إدارة الطاقة (نظام عالي الأداء)</h3>
+    <table class="spec-table">
+      <tr><td>البطارية الرئيسية</td><td>11.1V 3-Cell (3S) LiPo — تيار عالي لأقصى عزم للمحركات</td></tr>
+      <tr><td>تنظيم الجهد</td><td>DC-DC Buck Converter (LM2596) — من 11.1V إلى 5V ثابتة لتغذية ESP32 و OLED</td></tr>
+      <tr><td>الحماية</td><td> Total LiPo Alarm — مراقبة خلايا البطارية ومنع التفريغ الزائد</td></tr>
+    </table>
+
+    <h3 style="font-size:20px;font-weight:700;margin:40px 0 20px">🔧 الحركة والدفع</h3>
+    <table class="spec-table">
+      <tr><td>مشغل المحركات</td><td>L298N Dual H-Bridge — يربط طاقة 11.1V بمنطق ESP32</td></tr>
+      <tr><td>نظام الدفع</td><td>4-Wheel Drive (4WD) — أربعة محركات تروس عالية العزم</td></tr>
+      <tr><td>الهيكل</td><td>مطبوع ثلاثي الأبعاد (3D Printed) — تصميم معياري لتنظيم المكونات</td></tr>
+    </table>
+
+    <h3 style="font-size:20px;font-weight:700;margin:40px 0 20px">📡 الاتصالات</h3>
+    <table class="spec-table">
+      <tr><td>السحابة</td><td>Google Firebase Realtime Database — تحكم عن بعد ومزامنة الحالة عبر WiFi</td></tr>
+      <tr><td>محلياً</td><td>Bluetooth Low Energy (BLE) — الإعداد الأولي وتزويد WiFi والتصحيح</td></tr>
+    </table>
+
+    <h3 style="font-size:20px;font-weight:700;margin:40px 0 20px">🔌 توزيع المنافذ</h3>
+    <table class="pin-table">
+      <tr><th>المنفذ</th><th>المكون</th></tr>
+      <tr><td>GPIO14</td><td>Motor IN1</td></tr>
+      <tr><td>GPIO27</td><td>Motor IN2</td></tr>
+      <tr><td>GPIO26</td><td>Motor IN3</td></tr>
+      <tr><td>GPIO25</td><td>Motor IN4</td></tr>
+      <tr><td>GPIO21</td><td>OLED SDA</td></tr>
+      <tr><td>GPIO22</td><td>OLED SCL</td></tr>
+      <tr><td>GPIO2</td><td> Status LED</td></tr>
+    </table>
+  </section>
+
+  <section id="features">
+    <h2 class="section-title">المميزات</h2>
+    <p class="section-sub">ما الذي يميز Sentra عن غيره</p>
+    <div class="feature-list">
+      <div class="feature-item"><div class="check">✓</div><span>أوامر صوتية بالعربية المصرية تتحول إلى حركات دقيقة</span></div>
+      <div class="feature-item"><div class="check">✓</div><span>نظام أمان Heartbeat يوقف المحركات تلقائياً عند فقد الاتصال</span></div>
+      <div class="feature-item"><div class="check">✓</div><span>ذاكرة دائمة تحفظ إعدادات WiFi حتى بعد انقطاع التيار</span></div>
+      <div class="feature-item"><div class="check">✓</div><span>تصحيح مباشر عبر BLE يبث الذاكرة الحرة وقوة الإشارة ووقت التشغيل</span></div>
+      <div class="feature-item"><div class="check">✓</div><span>شاشة OLED تعرض حالة الاتصال والأوامر والأخطاء في الوقت الفعلي</span></div>
+      <div class="feature-item"><div class="check">✓</div><span>أوامر مركبة: يمين فشمال فقدام 3 ثواني — يتم تنفيذها كتسلسل</span></div>
+      <div class="feature-item"><div class="check">✓</div><span>استرداد تلقائي لشاشة OLED عند فقدان الاتصال بسبب الاهتزاز</span></div>
+      <div class="feature-item"><div class="check">✓</div><span>واجهة ويب للتحكم والمراقبة عن بعد عبر Firebase</span></div>
+      <div class="feature-item"><div class="check">✓</div><span>وضع الطاقة العالية: بطارية 11.1V LiPo مع منظم LM2596</span></div>
+      <div class="feature-item"><div class="check">✓</div><span>هيكل مطبوع ثلاثي الأبعاد قابل للتخصيص والتطوير</span></div>
     </div>
 
-    <div class="word-glass">
-      <h2 id="h">تحدث</h2>
+    <h3 style="font-size:20px;font-weight:700;margin:50px 0 20px">الأوامر الصوتية</h3>
+    <table class="cmd-table">
+      <tr><th>الأمر</th><th>بالعربية</th><th>الحركة</th></tr>
+      <tr><td style="color:var(--accent-1)">Forward</td><td>قدام / تقدم / امام / الأمام</td><td>التقدم لمدة 2 ثانية</td></tr>
+      <tr><td style="color:var(--accent-1)">Backward</td><td>ورا / للخلف / تراجع / الخلف</td><td>الرجوع لمدة 2 ثانية</td></tr>
+      <tr><td style="color:var(--accent-1)">Right</td><td>يمين / اتجه يمين / يميناً</td><td>الدوران يميناً لمدة 1 ثانية</td></tr>
+      <tr><td style="color:var(--accent-1)">Left</td><td>شمال / اتجه شمال / يسار</td><td>الدوران شمالاً لمدة 1 ثانية</td></tr>
+      <tr><td style="color:var(--accent-4)">Stop</td><td>وقف / توقف / استنى / قف</td><td>إيقاف جميع المحركات</td></tr>
+    </table>
+  </section>
+
+  <section id="download" class="cta-section">
+    <h2>🚀 ابدأ الآن</h2>
+    <p>حمّل تطبيق Sentra للتحكم الصوتي واليدوي، أو زر موقع GitHub للمصدر الكامل</p>
+    <div class="download-btns">
+      <a href="https://github.com/HMZsuper18/Sentra/releases" target="_blank" class="btn-primary">📲 تحميل APK</a>
+      <a href="https://github.com/HMZsuper18/Sentra" target="_blank" class="btn-secondary"> GitHub</a>
     </div>
+  </section>
 
-    <div class="waveform">
-      <div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div>
-      <div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div>
-    </div>
-
-    <div class="status-bar">
-      <div class="dot"></div>
-      <div class="dot"></div>
-      <div class="dot"></div>
-      <span class="status-text">استماع</span>
-    </div>
-    
-    <!-- Manual Controls -->
-    <div class="manual-controls" style="margin-top: 20px;">
-      <h3 style="color: rgba(255,255,255,.5); text-align: center; margin-bottom: 15px; font-size: 14px;">التحكم اليدوي</h3>
-      <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; max-width: 200px; margin: 0 auto;">
-        <button onclick="sendCommand('يمين')" class="control-btn">→ يمين</button>
-        <button onclick="sendCommand('شمال')" class="control-btn">← شمال</button>
-        <button onclick="sendCommand('قدام')" class="control-btn">↑ قدام</button>
-        <button onclick="sendCommand('ورا')" class="control-btn">↓ ورا</button>
-        <button onclick="sendCommand('وقف')" class="control-btn" style="grid-column: 1 / -1;">■ وقف</button>
-      </div>
-    </div>
-    
-    <div class="status-panel" style="margin-top: 20px; text-align: center;">
-      <div class="status-item">
-        <span class="status-label">الشاشة:</span>
-        <span id="lcd-status" class="status-value">---</span>
-      </div>
-      <div class="status-item" style="margin: 10px 0;">
-        <span class="status-label">المحركات:</span>
-        <div id="motor-status" style="display: flex; justify-content: center; gap: 5px; margin-top: 5px;">
-          <div class="motor-dot" id="motor1"></div>
-          <div class="motor-dot" id="motor2"></div>
-          <div class="motor-dot" id="motor3"></div>
-          <div class="motor-dot" id="motor4"></div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <script>
-    const DB_URL = "https://sentra-3ca66-default-rtdb.europe-west1.firebasedatabase.app/command/word.json?auth=zuUhC4VNiO0quwQ3JlmtH6hLf2Lx8YvODFCCuZVC";
-const STATUS_LCD_URL = "https://sentra-3ca66-default-rtdb.europe-west1.firebasedatabase.app/status/lcd.json?auth=zuUhC4VNiO0quwQ3JlmtH6hLf2Lx8YvODFCCuZVC";
-const STATUS_MOTOR_URLS = {
-  motor1: "https://sentra-3ca66-default-rtdb.europe-west1.firebasedatabase.app/status/motor1.json?auth=zuUhC4VNiO0quwQ3JlmtH6hLf2Lx8YvODFCCuZVC",
-  motor2: "https://sentra-3ca66-default-rtdb.europe-west1.firebasedatabase.app/status/motor2.json?auth=zuUhC4VNiO0quwQ3JlmtH6hLf2Lx8YvODFCCuZVC",
-  motor3: "https://sentra-3ca66-default-rtdb.europe-west1.firebasedatabase.app/status/motor3.json?auth=zuUhC4VNiO0quwQ3JlmtH6hLf2Lx8YvODFCCuZVC",
-  motor4: "https://sentra-3ca66-default-rtdb.europe-west1.firebasedatabase.app/status/motor4.json?auth=zuUhC4VNiO0quwQ3JlmtH6hLf2Lx8YvODFCCuZVC"
-};
-    const h = document.getElementById('h');
-    const transcriptEl = document.getElementById('transcript');
-
-const KEYWORD_MAP = {
-  "يمين": [
-    "يمين", "يميناً", "اتجه يمين", "دور يمين", "لف يمين", "خش يمين", 
-    "ناحية اليمين", "جهة اليمين", "اميل يمين", "انعطف يمين", "توجه يمين",
-    "روّح يمين", "حي اليمين", "اتجه لليمين", "دوار يمين",
-    "لف得太", "خشّ يمين", "امال يمين", "يَمين", "يَمينًا",
-    "اسلك طريق اليمين", "خذ اليمين", "متجه لليمين", "مائل لليمين",
-    "عوجة يمين", "انحراف يمين", "انحراف جهة اليمين", " ميلان لليمين",
-    "اتجاة لليمين", "التفاف يمين", "لفه يمين", "خوش يمين", " ناحيه اليمين",
-    "جهه اليمين", "امل يمين", "انعطف جهة اليمين", "توجه جهة اليمين",
-    "روح لليمين", "حيه اليمين", "اتجه لجهة اليمين", "لف لليمين",
-    "خش لليمين"
-  ],
-  "شمال": [
-    "شمال", "يسار", "اتجه شمال", "دور شمال", "لف شمال", "يسار",
-    "اتجه يساراً", "خش شمال", "ناحية الشمال", "جهة اليسار", "اميل يسار",
-    "انعطف شمال", "توجه شمال", "شمالاً", "روّح شمال", "حي للشمال",
-    "اتجه لليسار", "دوار شمال", "욧 شمال", "욧 يسار", "욧 اليسار",
-    " يساراً", " اتجه لليسار", "لف يسار", "خش يسار",
-    "ناحية اليسار", "جهة الشمال", "اميل شمال", "انعطف جهة الشمال",
-    "توجه جهة الشمال", "روح لليسار", "حي الشمال", "اتجه لجهة اليسار",
-    "لف لليسار", "خش لليسار", "عوجة شمال", "انحراف شمال"
-  ],
-  "قدام": [
-    "قدام", "امام", "الأمام", "تقدم", "للأمام", "امشي", "تحرك", "كمل",
-    "دغري", "على طول", "اطلع قدام", "توجه قدام", "اماماً", "روّح قدام",
-    "قدماً", "امامي", "تقدم向前", "امشي قدام", "للأمام قدماً",
-    "سير قدام", "المشي قدام", "التقدم قدام", "الامام قدام",
-    "قدماً قدام", "امامي قدام", "امام قدماً", "امامي قداماً",
-    "امشي قداماً", "تحرك قداماً", "سير قداماً", "تقدماً قداماً",
-    "امشي قدماً", "امشي قداماً", "امشي قدام قدام"
-  ],
-  "ورا": [
-    "ورا", "الخلف", "للخلف", "تراجع", "ارجع", "ارجع ورا", "لورا",
-    "عشيري", "ارجع تاني", "تراجع للخلف", "إرجع", "رجع", "رجع ورا",
-    "خلف", "ورّ", "للخلف قدماً", "للخلف قدماً", "الخلف قدماً",
-    "الوراء قدماً", "الخلف قدماً", "الوراء قدماً", "الخلف قدماً",
-    "الخلف قدماً", "الخلف قدماً", "الخلف قدماً", "الخلف قدماً",
-    "رجوع للخلف", "ركوب للخلف", "السير للخلف", "المشي للخلف",
-    "تراجع للخلف قدماً", "التراجع للخلف", "التراجع قدماً"
-  ],
-  "وقف": [
-    "وقف", "توقف", "قف", "استنى", "اوقف", "بس", "خلاص", "اثبت",
-    "فرمل", "هدئ", "كفاية", "توق", "توقّف", "إوقف", "ثبت",
-    "إنتظر", "إنتظر.", "إهدأ", "تكفّى", "ايقاف", "اقف", "ثابت",
-    "متوقف", "لا تتحرك", "اقف مكانك", "ثابت مكانك", "لا تمشي",
-    "وقفة", "واقف", "واقف مكانك", "ثابت ولا تتحرك"
-  ],
-};
-
-    function extractKeyword(transcript) {
-      const normalized = transcript.trim();
-      for (const [keyword, phrases] of Object.entries(KEYWORD_MAP)) {
-        for (const phrase of phrases) {
-          if (normalized.includes(phrase)) return keyword;
-        }
-      }
-      return null;
-    }
-
-    function setWord(word) {
-      h.classList.remove('pop');
-      void h.offsetWidth;
-      h.textContent = word;
-      h.classList.add('pop');
-    }
-
-     function sendToFirebase(keyword) {
-       fetch(DB_URL, {
-         method: 'PUT',
-         headers: { 'Content-Type': 'application/json' },
-         body: JSON.stringify({ word: keyword })
-       });
-     }
-     
-     function sendCommand(command) {
-       // Send command to Firebase
-       fetch(DB_URL, {
-         method: 'PUT',
-         headers: { 'Content-Type': 'application/json' },
-         body: JSON.stringify({ word: command })
-       });
-       
-       // Update display
-       setWord(command);
-       
-       // Provide visual feedback
-       const btn = event.target;
-       btn.style.transform = 'scale(0.95)';
-       setTimeout(() => {
-         btn.style.transform = 'scale(1)';
-       }, 100);
-     }
-     
-     // Fetch status from Firebase
-     function updateStatus() {
-       Promise.all([
-         fetch(STATUS_LCD_URL).then(r => r.json()),
-         fetch(STATUS_MOTOR_URLS.motor1).then(r => r.json()),
-         fetch(STATUS_MOTOR_URLS.motor2).then(r => r.json()),
-         fetch(STATUS_MOTOR_URLS.motor3).then(r => r.json()),
-         fetch(STATUS_MOTOR_URLS.motor4).then(r => r.json())
-       ]).then(([lcd, m1, m2, m3, m4]) => {
-         document.getElementById('lcd-status').textContent = lcd || '---';
-         
-         const motors = [m1, m2, m3, m4];
-         motors.forEach((motor, index) => {
-           const motorEl = document.getElementById(`motor${index + 1}`);
-           if (motorEl) {
-             motorEl.classList.toggle('active', motor === 1);
-           }
-         });
-       }).catch(err => {
-         console.warn('Status update failed:', err);
-       });
-     }
-
-     // Initialize status updates
-     updateStatus(); // Initial load
-     setInterval(updateStatus, 2000); // Update every 2 seconds
-     
-     navigator.mediaDevices.getUserMedia({ audio: true })
-       .then(() => {
-         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-         const rec = new SpeechRecognition();
-         rec.lang = 'ar-EG';
-         rec.continuous = true;
-         rec.interimResults = true;
-
-         rec.onresult = e => {
-           let finalTranscript = '';
-           for (let i = e.resultIndex; i < e.results.length; i++) {
-             if (e.results[i].isFinal) finalTranscript += e.results[i][0].transcript;
-           }
-
-           if (!finalTranscript) return;
-
-           transcriptEl.textContent = finalTranscript;
-
-           const keyword = extractKeyword(finalTranscript);
-           if (keyword) {
-             setWord(keyword);
-             sendToFirebase(keyword);
-           } else {
-             setWord('؟');
-             sendToFirebase('');
-           }
-         };
-
-         rec.start();
-       })
-       .catch(() => {
-         h.textContent = 'تم الرفض';
-         h.classList.add('denied');
-       });
-  </script>
+  <footer>
+    <p>Sentra © 2026 — <a href="https://github.com/HMZsuper18/Sentra" target="_blank">GitHub</a></p>
+  </footer>
 </body>
 </html>
