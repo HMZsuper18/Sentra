@@ -1,12 +1,13 @@
 .pio
-.vscodegh_*
+.vscode/
 
 # GitHub CLI files
 gh_*
 
 # Secrets
 src/secrets.h
+Sentra/src/secrets.h
 
-3D/gcode_body.gcode
-3D/body.FCStd
-3D/body.20260512-104900.FCStd
+# 3D model files
+3D/*.gcode
+3D/*.FCStd
