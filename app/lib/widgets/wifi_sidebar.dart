@@ -12,8 +12,8 @@ class WifiSidebar extends StatelessWidget {
   final String debugInfo;
   final bool debugExpanded;
   final List<String> debugLogs;
-  final String wifiName;
-  final String wifiPassword;
+  final TextEditingController wifiNameCtrl;
+  final TextEditingController wifiPassCtrl;
   final VoidCallback onClose;
   final VoidCallback onScan;
   final void Function(BluetoothDevice) onConnect;
@@ -32,8 +32,8 @@ class WifiSidebar extends StatelessWidget {
     required this.debugInfo,
     required this.debugExpanded,
     required this.debugLogs,
-    required this.wifiName,
-    required this.wifiPassword,
+    required this.wifiNameCtrl,
+    required this.wifiPassCtrl,
     required this.onClose,
     required this.onScan,
     required this.onConnect,
@@ -66,9 +66,9 @@ class WifiSidebar extends StatelessWidget {
               const SizedBox(height: 20),
               _buildBLESection(),
               const SizedBox(height: 28),
-              _buildInfoField('اسم الشبكة', wifiName, Icons.wifi),
+              _buildWifiInput('اسم الشبكة', wifiNameCtrl, Icons.wifi, false),
               const SizedBox(height: 16),
-              _buildInfoField('كلمة المرور', wifiPassword, Icons.lock),
+              _buildWifiInput('كلمة المرور', wifiPassCtrl, Icons.lock, true),
               const SizedBox(height: 16),
               _buildSendButton(),
               const SizedBox(height: 28),
@@ -142,13 +142,15 @@ class WifiSidebar extends StatelessWidget {
       Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text('الاتصال بالبلوتوث', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.white)),
+          Expanded(
+            child: Text('الاتصال بالبلوتوث', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.white), overflow: TextOverflow.ellipsis),
+          ),
           GestureDetector(
             onTap: scanning ? null : onScan,
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
               decoration: BoxDecoration(borderRadius: BorderRadius.circular(8), color: c2.withValues(alpha: 0.2)),
-              child: Text(scanning ? 'جاري البحث...' : 'بحث', style: TextStyle(color: c2, fontSize: 12)),
+              child: Text(scanning ? 'جاري...' : 'بحث', style: TextStyle(color: c2, fontSize: 12)),
             ),
           ),
         ],
@@ -207,33 +209,58 @@ class WifiSidebar extends StatelessWidget {
     ],
   );
 
-  Widget _buildInfoField(String label, String value, IconData icon) => Container(
-    padding: const EdgeInsets.all(16),
-    decoration: BoxDecoration(
-      borderRadius: BorderRadius.circular(14),
-      color: Colors.white.withValues(alpha: 0.04),
-      border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
-    ),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(children: [
-          Icon(icon, color: c2, size: 16),
-          const SizedBox(width: 8),
-          Text(label, style: TextStyle(color: Colors.white.withValues(alpha: 0.5), fontSize: 12, fontWeight: FontWeight.w300)),
-        ]),
-        const SizedBox(height: 8),
-        Text(value, style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w600, letterSpacing: 1)),
-      ],
-    ),
-  );
+  Widget _buildWifiInput(String label, TextEditingController ctrl, IconData icon, bool obscure) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(14),
+        color: Colors.white.withValues(alpha: 0.04),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(children: [
+            Icon(icon, color: c2, size: 14),
+            const SizedBox(width: 6),
+            Text(label, style: TextStyle(color: Colors.white.withValues(alpha: 0.5), fontSize: 11, fontWeight: FontWeight.w300)),
+          ]),
+          const SizedBox(height: 6),
+          TextField(
+            controller: ctrl,
+            obscureText: obscure,
+            style: TextStyle(color: Colors.white.withValues(alpha: 0.9), fontSize: 14, fontFamily: 'Tajawal'),
+            decoration: InputDecoration(
+              hintText: 'undefined',
+              hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.3), fontSize: 13),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+                borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.2)),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+                borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.1)),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+                borderSide: BorderSide(color: c2.withValues(alpha: 0.4)),
+              ),
+              contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+              filled: true,
+              fillColor: Colors.white.withValues(alpha: 0.05),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
   Widget _buildSendButton() {
     final canSend = connectedDevice != null;
     return GestureDetector(
       onTap: canSend ? onSendWifi : null,
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 14),
+        padding: const EdgeInsets.symmetric(vertical: 12),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(12),
           color: canSend ? c4.withValues(alpha: 0.2) : Colors.white.withValues(alpha: 0.08),
@@ -243,9 +270,9 @@ class WifiSidebar extends StatelessWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(Icons.send, color: canSend ? c4 : Colors.white.withValues(alpha: 0.3), size: 18),
-              const SizedBox(width: 8),
-              Text('إرسال إعدادات الواي فاي', style: TextStyle(color: canSend ? c4 : Colors.white.withValues(alpha: 0.3), fontSize: 14, fontWeight: FontWeight.w500)),
+              Icon(Icons.bluetooth, color: canSend ? c4 : Colors.white.withValues(alpha: 0.3), size: 16),
+              const SizedBox(width: 6),
+              Text('إرسال عبر البلوتوث', style: TextStyle(color: canSend ? c4 : Colors.white.withValues(alpha: 0.3), fontSize: 13, fontWeight: FontWeight.w500)),
             ],
           ),
         ),

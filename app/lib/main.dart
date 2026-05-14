@@ -60,6 +60,9 @@ class _SentraHomeState extends State<SentraHome> with TickerProviderStateMixin {
 
   String _lastCommand = '...';
   List<String> _motorStates = ['idle', 'idle', 'idle', 'idle'];
+  final TextEditingController _cmdController = TextEditingController();
+  final TextEditingController _wifiNameCtrl = TextEditingController(text: '');
+  final TextEditingController _wifiPassCtrl = TextEditingController(text: '');
 
   StreamSubscription<String>? _fbSub;
 
@@ -106,7 +109,10 @@ class _SentraHomeState extends State<SentraHome> with TickerProviderStateMixin {
   }
 
   Future<void> _sendWifiCredentials() async {
-    await _bleService.sendWifiCredentials('still_undefined', 'still_undefined');
+    final ssid = _wifiNameCtrl.text.trim();
+    final pass = _wifiPassCtrl.text.trim();
+    if (ssid.isEmpty || pass.isEmpty) return;
+    await _bleService.sendWifiCredentials(ssid, pass);
   }
 
   void _startFirebaseStream() {
@@ -167,14 +173,13 @@ class _SentraHomeState extends State<SentraHome> with TickerProviderStateMixin {
   @override
   void dispose() {
     _fbSub?.cancel();
+    _cmdController.dispose();
+    _wifiNameCtrl.dispose();
+    _wifiPassCtrl.dispose();
     _popCtrl.dispose();
     _lcdBlinkCtrl.dispose();
-    for (final c in _orbCtrl) {
-      c.dispose();
-    }
-    for (final c in _particleCtrl) {
-      c.dispose();
-    }
+    for (final c in _orbCtrl) c.dispose();
+    for (final c in _particleCtrl) c.dispose();
     super.dispose();
   }
 
@@ -194,8 +199,8 @@ class _SentraHomeState extends State<SentraHome> with TickerProviderStateMixin {
         debugInfo: _debugInfo,
         debugExpanded: _debugExpanded,
         debugLogs: _debugLogs,
-        wifiName: 'still_undefined',
-        wifiPassword: 'still_undefined',
+        wifiNameCtrl: _wifiNameCtrl,
+        wifiPassCtrl: _wifiPassCtrl,
         onClose: () => Navigator.pop(context),
         onScan: _startBLEScan,
         onConnect: _connectToDevice,
@@ -266,6 +271,8 @@ class _SentraHomeState extends State<SentraHome> with TickerProviderStateMixin {
             _buildCommandBadge(),
             const SizedBox(height: 16),
             ManualControlsWidget(onCommand: _sendCommand),
+            const SizedBox(height: 16),
+            _buildCustomInput(),
           ],
         ),
       ),
@@ -273,7 +280,6 @@ class _SentraHomeState extends State<SentraHome> with TickerProviderStateMixin {
       RobotMapWidget(
         lastCommand: _lastCommand,
         motorStates: _motorStates,
-        lcdCtrl: _lcdBlinkCtrl,
       ),
       const SizedBox(height: 12),
       _buildLegend(),
@@ -294,6 +300,8 @@ class _SentraHomeState extends State<SentraHome> with TickerProviderStateMixin {
                   _buildCommandBadge(),
                   const SizedBox(height: 16),
                   ManualControlsWidget(onCommand: _sendCommand),
+                  const SizedBox(height: 16),
+                  _buildCustomInput(),
                 ],
               ),
             ),
@@ -308,7 +316,6 @@ class _SentraHomeState extends State<SentraHome> with TickerProviderStateMixin {
             RobotMapWidget(
               lastCommand: _lastCommand,
               motorStates: _motorStates,
-              lcdCtrl: _lcdBlinkCtrl,
             ),
             const SizedBox(height: 12),
             _buildLegend(),
@@ -348,6 +355,67 @@ class _SentraHomeState extends State<SentraHome> with TickerProviderStateMixin {
       ],
     ),
   );
+
+  Widget _buildCustomInput() => Container(
+    decoration: BoxDecoration(
+      borderRadius: BorderRadius.circular(14),
+      color: Colors.white.withValues(alpha: 0.03),
+      border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
+    ),
+    padding: const EdgeInsets.all(12),
+    child: Row(
+      children: [
+        Expanded(
+          child: TextField(
+            controller: _cmdController,
+            style: TextStyle(color: Colors.white.withValues(alpha: 0.9), fontSize: 14, fontFamily: 'Tajawal'),
+            decoration: InputDecoration(
+              hintText: 'أمر مخصص (مثال: يمين فشمال فورا)',
+              hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.3), fontSize: 13),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
+                borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.2)),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
+                borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.15)),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
+                borderSide: BorderSide(color: c2.withValues(alpha: 0.5)),
+              ),
+              contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+              filled: true,
+              fillColor: Colors.white.withValues(alpha: 0.05),
+            ),
+            textInputAction: TextInputAction.send,
+            onSubmitted: (value) => _sendCustomCommand(value),
+          ),
+        ),
+        const SizedBox(width: 8),
+        GestureDetector(
+          onTap: () => _sendCustomCommand(_cmdController.text),
+          child: Container(
+            width: 42,
+            height: 42,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(12),
+              color: c2.withValues(alpha: 0.2),
+              border: Border.all(color: c2.withValues(alpha: 0.4)),
+            ),
+            child: Icon(Icons.send, color: c2, size: 18),
+          ),
+        ),
+      ],
+    ),
+  );
+
+  void _sendCustomCommand(String text) {
+    final cmd = text.trim();
+    if (cmd.isEmpty) return;
+    _cmdController.clear();
+    _sendCommand(cmd);
+  }
 
   Widget _buildLegend() => Wrap(
     spacing: 12,
@@ -419,46 +487,56 @@ class _SentraHomeState extends State<SentraHome> with TickerProviderStateMixin {
 
   void _sendCommand(String command) {
     sendToFirebase(command);
-    setState(() {
-      _lastCommand = command;
-      _updateLocalMotorState(command);
-    });
+    setState(() => _lastCommand = command);
+    _animateMotorSequence(command);
   }
 
-  void _updateLocalMotorState(String command) {
-    switch (command) {
-      case 'قدام':
-        _motorStates = ['forward', 'forward', 'forward', 'forward'];
-        Future.delayed(const Duration(seconds: 2), () {
-          if (mounted)
-            setState(() => _motorStates = ['idle', 'idle', 'idle', 'idle']);
-        });
-        break;
-      case 'ورا':
-        _motorStates = ['backward', 'backward', 'backward', 'backward'];
-        Future.delayed(const Duration(seconds: 2), () {
-          if (mounted)
-            setState(() => _motorStates = ['idle', 'idle', 'idle', 'idle']);
-        });
-        break;
-      case 'يمين':
-        _motorStates = ['forward', 'forward', 'backward', 'backward'];
-        Future.delayed(const Duration(seconds: 1), () {
-          if (mounted)
-            setState(() => _motorStates = ['idle', 'idle', 'idle', 'idle']);
-        });
-        break;
-      case 'شمال':
-        _motorStates = ['backward', 'backward', 'forward', 'forward'];
-        Future.delayed(const Duration(seconds: 1), () {
-          if (mounted)
-            setState(() => _motorStates = ['idle', 'idle', 'idle', 'idle']);
-        });
-        break;
-      case 'وقف':
-        _motorStates = ['idle', 'idle', 'idle', 'idle'];
-        break;
+  static List<String> _motorStateFor(String cmd) {
+    if (cmd.contains('يمين')) return ['forward', 'forward', 'backward', 'backward'];
+    if (cmd.contains('شمال') || cmd.contains('يسار')) return ['backward', 'backward', 'forward', 'forward'];
+    if (cmd.contains('ورا') || cmd.contains('للخلف') || cmd.contains('تراجع')) return ['backward', 'backward', 'backward', 'backward'];
+    if (cmd.contains('قدام') || cmd.contains('تقدم') || cmd.contains('امام')) return ['forward', 'forward', 'forward', 'forward'];
+    return ['idle', 'idle', 'idle', 'idle'];
+  }
+
+  static int _motorStepMs(String cmd) {
+    final m = RegExp(r'(\d+)\s*ثوان').firstMatch(cmd);
+    if (m != null) return int.parse(m.group(1)!) * 1000;
+    if (cmd.contains('يمين') || cmd.contains('شمال') || cmd.contains('يسار')) return 1000;
+    if (cmd.contains('وقف')) return 0;
+    return 2000;
+  }
+
+  void _animateMotorSequence(String command) {
+    if (command == 'وقف') {
+      setState(() => _motorStates = ['idle', 'idle', 'idle', 'idle']);
+      return;
     }
+
+    final parts = command.replaceAll('و', 'ف').split('ف');
+    if (parts.length == 1) {
+      final ms = _motorStepMs(command);
+      setState(() => _motorStates = _motorStateFor(command));
+      if (ms > 0) Future.delayed(Duration(milliseconds: ms), () {
+        if (mounted) setState(() => _motorStates = ['idle', 'idle', 'idle', 'idle']);
+      });
+      return;
+    }
+
+    int accumulated = 0;
+    for (final raw in parts) {
+      final step = raw.trim();
+      if (step.isEmpty) continue;
+      final states = _motorStateFor(step);
+      final ms = _motorStepMs(step);
+      Future.delayed(Duration(milliseconds: accumulated), () {
+        if (mounted) setState(() => _motorStates = states);
+      });
+      accumulated += ms;
+    }
+    Future.delayed(Duration(milliseconds: accumulated), () {
+      if (mounted) setState(() => _motorStates = ['idle', 'idle', 'idle', 'idle']);
+    });
   }
 
   void _addDebugLog(String message) {

@@ -5,13 +5,11 @@ import '../core/keywords.dart';
 class RobotMapWidget extends StatelessWidget {
   final String lastCommand;
   final List<String> motorStates;
-  final AnimationController lcdCtrl;
 
   const RobotMapWidget({
     super.key,
     required this.lastCommand,
     required this.motorStates,
-    required this.lcdCtrl,
   });
 
   @override
@@ -51,7 +49,25 @@ class RobotMapWidget extends StatelessWidget {
                     border: Border.all(color: Colors.white.withValues(alpha: 0.2)),
                     boxShadow: [BoxShadow(color: c1.withValues(alpha: 0.1), blurRadius: 20)],
                   ),
-                  child: Icon(Icons.smart_toy_rounded, color: c1.withValues(alpha: 0.8), size: 34),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.smart_toy_rounded, color: c1.withValues(alpha: 0.8), size: 28),
+                      const SizedBox(height: 6),
+                      Text(
+                        lastCommand,
+                        style: TextStyle(
+                          color: wc,
+                          fontSize: 11,
+                          fontWeight: FontWeight.bold,
+                          fontFamily: 'monospace',
+                        ),
+                        textAlign: TextAlign.center,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                  ),
                 ),
                 Column(
                   children: [
@@ -62,8 +78,6 @@ class RobotMapWidget extends StatelessWidget {
                 ),
               ],
             ),
-            const SizedBox(height: 20),
-            _buildVirtualLCD(wc),
           ],
         ),
       ),
@@ -89,46 +103,6 @@ class RobotMapWidget extends StatelessWidget {
             : [],
         border: Border.all(color: stateColor.withValues(alpha: 0.5), width: 1.5),
       ),
-    );
-  }
-
-  Widget _buildVirtualLCD(Color wc) {
-    final lcdText = 'Sentra OK';
-    return AnimatedBuilder(
-      animation: lcdCtrl,
-      builder: (_, _) {
-        final glow = 0.4 + lcdCtrl.value * 0.3;
-        return Container(
-          width: double.infinity,
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(10),
-            color: lcdBg,
-            border: Border.all(color: c2.withValues(alpha: 0.6)),
-            boxShadow: [BoxShadow(color: c2.withValues(alpha: glow), blurRadius: 18, spreadRadius: 2)],
-          ),
-          child: Row(
-            children: [
-              Icon(Icons.display_settings, color: c2.withValues(alpha: 0.6), size: 14),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Text(
-                  lcdText,
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 13,
-                    fontWeight: FontWeight.w500,
-                    letterSpacing: 1.5,
-                    fontFamily: 'monospace',
-                  ),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-            ],
-          ),
-        );
-      },
     );
   }
 

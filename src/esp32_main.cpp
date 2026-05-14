@@ -3,6 +3,7 @@
 #include <WiFi.h>
 #include <FirebaseESP32.h>
 #include <ArduinoJson.h>
+#include "esp_coexist.h"
 
 #include "config.h"
 #include "motors.h"
@@ -38,6 +39,8 @@ unsigned long lastWifiCheck = 0;
 const unsigned long WIFI_CHECK_INTERVAL = 5000;
 
 extern bool oledReady;
+
+extern int moveQueueLen;
 
 String toEnglish(const String& word) {
     if (word == "يمين" || word == "اتجه يمين" || word == "يميناً") return "Right";
@@ -102,8 +105,8 @@ void setup() {
     preferences.begin("sentra", false);
     boardName = preferences.getString("boardname", "Sentra_Board");
 
-    String storedSsid = preferences.getString("ssid", DEFAULT_SSID);
-    String storedPass = preferences.getString("password", DEFAULT_PASS);
+    String storedSsid = preferences.getString("ssid", "");
+    String storedPass = preferences.getString("password", "");
 
     if (storedSsid.length() > 0 && storedPass.length() > 0) {
         Serial.println("Found stored WiFi credentials, connecting...");
@@ -113,6 +116,8 @@ void setup() {
         Serial.println("No stored WiFi credentials, waiting for app...");
         pushLCD("No WiFi Config");
     }
+
+    esp_coex_preference_set(ESP_COEX_PREFER_WIFI);
 
     initBLE();
 
@@ -128,13 +133,19 @@ void loop() {
     if (motorRunning && now >= motorStopTime) {
         stopMotors();
         motorRunning = false;
-        pushLCD("Ready");
         pushMotorStates();
+        if (hasQueuedMoves()) {
+            runNextMove();
+            pushMotorStates();
+        } else {
+            pushLCD("Ready");
+        }
     }
 
     if (motorRunning && (now - lastCmdTime >= HEARTBEAT_TIMEOUT)) {
         stopMotors();
         motorRunning = false;
+        moveQueueLen = 0;
         pushLCD("Timeout");
         pushMotorStates();
         Serial.println("Heartbeat timeout - motors stopped");
@@ -153,11 +164,14 @@ void loop() {
     if (now - lastWifiCheck >= WIFI_CHECK_INTERVAL) {
         lastWifiCheck = now;
         if (WiFi.status() != WL_CONNECTED) {
-            Serial.println("WiFi lost, reconnecting...");
-            pushLCD("WiFi Lost");
-            digitalWrite(2, LOW);
-            currentErrors = "E006";
-            connectToWifi();
+            String checkSsid = preferences.getString("ssid", "");
+            if (checkSsid.length() > 0) {
+                Serial.println("WiFi lost, reconnecting...");
+                pushLCD("WiFi Lost");
+                digitalWrite(2, LOW);
+                currentErrors = "E006";
+                connectToWifi();
+            }
         } else if (currentErrors == "E006") {
             currentErrors = "";
         }
