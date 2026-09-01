@@ -1,0 +1,43 @@
+# PlatformIO
+.pio/
+.pioenvs/
+.piolibdeps/
+
+# VS Code
+.vscode/
+
+# Secrets
+src/secrets.h
+app/secrets/
+
+# Flutter
+app/.dart_tool/
+app/.packages
+app/build/
+app/.flutter-plugins
+app/.flutter-plugins-dependencies
+app/pubspec.lock
+app/.metadata
+app/android/.gradle/
+app/android/app/build/
+app/android/local.properties
+app/linux/flutter/ephemeral/
+app/macos/Pods/
+app/ios/Pods/
+app/ios/Flutter/.last_build_id
+
+# IDE
+.idea/
+*.iml
+*.swp
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Build outputs
+*.o
+*.elf
+*.bin
+*.hex
